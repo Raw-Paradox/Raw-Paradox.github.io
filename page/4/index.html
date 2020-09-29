@@ -166,6 +166,183 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/05/19.%20Remove%20Nth%20Node%20From%20End%20of%20List/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/05/19.%20Remove%20Nth%20Node%20From%20End%20of%20List/" class="post-title-link" itemprop="url">19. Remove Nth Node From End of List</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-05 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-05T00:00:00+08:00">2020-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="remove-nth-node-from-end-of-list">19. Remove Nth Node From End of List</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given a linked list, remove the <em>n</em>-th node from the end of list and return its head.</p>
+<p>Given <em>n</em> will always be valid.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct ListNode* <span class="title">removeNthFromEnd</span><span class="params">(struct ListNode* head, <span class="keyword">int</span> n)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>At the beginning I think this problem is quite easy and don’t need any analysis, BUT in this problem, the <code>head</code> point to the first element in list! That sucks! And if your input like <code>[1] 1</code>, the expect output is <code>NULL</code>, quite weird. Use linked list without head node sucks, donnot use that!</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct ListNode* <span class="title">removeNthFromEnd</span><span class="params">(struct ListNode* head, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">prev</span> = <span class="title">head</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">curr</span> = <span class="title">head</span>;</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">        curr = curr-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!curr)&#123;</span><br><span class="line">        prev = head-&gt;next;</span><br><span class="line">        <span class="built_in">free</span>(head);</span><br><span class="line">        <span class="keyword">return</span> prev;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (curr-&gt;next) &#123;</span><br><span class="line">        prev = prev-&gt;next;</span><br><span class="line">        curr = curr-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">temp</span> = <span class="title">prev</span>-&gt;<span class="title">next</span>;</span></span><br><span class="line">    prev-&gt;next = temp-&gt;next;</span><br><span class="line">    <span class="built_in">free</span>(temp);</span><br><span class="line">    <span class="keyword">return</span> head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/04/18.%204Sum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/04/18.%204Sum/" class="post-title-link" itemprop="url">18. 4Sum</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-08-04 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-04T00:00:00+08:00">2020-08-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="sum">18. 4Sum</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/4sum">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given an array <code>nums</code> of <em>n</em> integers and an integer <code>target</code>, are there elements <em>a</em>, <em>b</em>, <em>c</em>, and <em>d</em> in <code>nums</code> such that <em>a</em> + <em>b</em> + <em>c</em> + <em>d</em> = <code>target</code>? Find all unique quadruplets in the array which gives the sum of <code>target</code>.</p>
+<p><strong>Note:</strong></p>
+<p>The solution set must not contain duplicate quadruplets.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span>** <span class="title">fourSum</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize, <span class="keyword">int</span> target, <span class="keyword">int</span>* returnSize, <span class="keyword">int</span>** returnColumnSizes)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>The base idea is the same as previous problem <code>3sum</code> , so here I just talk about some techniques and edge conditions.</p>
+<ol start="0" type="1">
+<li>To avoid call <code>malloc</code> multiple times, estimate the memory size need to use and allocate it at one time.</li>
+<li>To avoid duplicate quadruplets, detect <code>i</code>-th, <code>j</code>-th element if equal to its previous one, and skip it if the condition is true.</li>
+</ol>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span>** <span class="title">fourSum</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize, <span class="keyword">int</span> target, <span class="keyword">int</span>* returnSize, <span class="keyword">int</span>** returnColumnSizes)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (numsSize &lt; <span class="number">4</span>) &#123;</span><br><span class="line">        *returnSize = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> LIL_NUM = <span class="number">0x8fffffff</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; numsSize; ++i) &#123;</span><br><span class="line">        <span class="keyword">int</span> child = i;</span><br><span class="line">        <span class="keyword">int</span> parent = (child - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">while</span> (child &gt;</span><br><span class="line">                   <span class="number">0</span> &amp;&amp;</span><br><span class="line">               nums[child] &gt; nums[parent]) &#123;</span><br><span class="line">            nums[child] = nums[child] ^ nums[parent];</span><br><span class="line">            nums[parent] = nums[child] ^ nums[parent];</span><br><span class="line">            nums[child] = nums[child] ^ nums[parent];</span><br><span class="line">            child = parent;</span><br><span class="line">            parent = (child - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = numsSize - <span class="number">1</span>; i &gt; <span class="number">0</span>; --i) &#123;</span><br><span class="line">        <span class="keyword">int</span> elem = nums[i];</span><br><span class="line">        nums[i] = nums[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (index * <span class="number">2</span> + <span class="number">1</span> &lt; i) &#123;</span><br><span class="line">            <span class="keyword">int</span> left = nums[index * <span class="number">2</span> + <span class="number">1</span>];</span><br><span class="line">            <span class="keyword">int</span> right = index * <span class="number">2</span> + <span class="number">2</span> &lt; i ? nums[index * <span class="number">2</span> + <span class="number">2</span>] : LIL_NUM;</span><br><span class="line">            <span class="keyword">if</span> (elem &gt; left &amp;&amp; elem &gt; right) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">                nums[index] = right;</span><br><span class="line">                index = index * <span class="number">2</span> + <span class="number">2</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                nums[index] = left;</span><br><span class="line">                index = index * <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        nums[index] = elem;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">char</span>* pool = (<span class="keyword">char</span>*)<span class="built_in">malloc</span>((<span class="keyword">sizeof</span>(<span class="keyword">int</span>*) + (<span class="keyword">sizeof</span>(<span class="keyword">int</span>) &lt;&lt; <span class="number">2</span>) + <span class="keyword">sizeof</span>(<span class="keyword">int</span>)) * (numsSize * numsSize));</span><br><span class="line">    <span class="comment">// store tuple pointer</span></span><br><span class="line">    <span class="keyword">int</span>** r = (<span class="keyword">int</span>**)pool;</span><br><span class="line">    <span class="comment">//store tuple</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">        <span class="keyword">int</span> tuple[<span class="number">4</span>];</span><br><span class="line">    &#125; tuple;</span><br><span class="line">    tuple* storge = (tuple*)(pool + <span class="keyword">sizeof</span>(<span class="keyword">int</span>*) * numsSize * numsSize);</span><br><span class="line">    <span class="comment">//store col size</span></span><br><span class="line">    *returnColumnSizes = (<span class="keyword">int</span>*)(pool + (<span class="keyword">sizeof</span>(<span class="keyword">int</span>*) + (<span class="keyword">sizeof</span>(<span class="keyword">int</span>) &lt;&lt; <span class="number">2</span>)) * numsSize * numsSize);</span><br><span class="line">    <span class="keyword">int</span>* col_size = *returnColumnSizes;</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; numsSize - <span class="number">3</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> i_val = nums[i];</span><br><span class="line">        <span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; i_val == nums[i - <span class="number">1</span>]) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; numsSize - <span class="number">2</span>; j++) &#123;</span><br><span class="line">            <span class="keyword">int</span> j_val = nums[j];</span><br><span class="line">            <span class="keyword">if</span> (j &gt; i + <span class="number">1</span> &amp;&amp; j_val == nums[j - <span class="number">1</span>]) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">int</span> low = j + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">int</span> high = numsSize - <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">int</span> local_target = target - i_val - j_val;</span><br><span class="line">            <span class="keyword">while</span> (low &lt; high) &#123;</span><br><span class="line">                <span class="keyword">if</span> (nums[low] + nums[high] &gt; local_target) &#123;</span><br><span class="line">                    high--;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nums[low] + nums[high] &lt; local_target) &#123;</span><br><span class="line">                    low++;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (cur &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">                        i_val == storge[cur - <span class="number">1</span>].tuple[<span class="number">0</span>] &amp;&amp;</span><br><span class="line">                        j_val == storge[cur - <span class="number">1</span>].tuple[<span class="number">1</span>] &amp;&amp;</span><br><span class="line">                        nums[low] == storge[cur - <span class="number">1</span>].tuple[<span class="number">2</span>] &amp;&amp;</span><br><span class="line">                        nums[high] == storge[cur - <span class="number">1</span>].tuple[<span class="number">3</span>]) &#123;</span><br><span class="line">                        low++;</span><br><span class="line">                        high--;</span><br><span class="line">                        <span class="keyword">continue</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    tuple* temp = storge + cur;</span><br><span class="line">                    r[cur] = temp-&gt;tuple;</span><br><span class="line">                    col_size[cur] = <span class="number">4</span>;</span><br><span class="line">                    temp-&gt;tuple[<span class="number">0</span>] = i_val;</span><br><span class="line">                    temp-&gt;tuple[<span class="number">1</span>] = j_val;</span><br><span class="line">                    temp-&gt;tuple[<span class="number">2</span>] = nums[low];</span><br><span class="line">                    temp-&gt;tuple[<span class="number">3</span>] = nums[high];</span><br><span class="line">                    <span class="built_in">printf</span>(<span class="string">&quot;(%d,%d,%d,%d)\n&quot;</span>, temp-&gt;tuple[<span class="number">0</span>], temp-&gt;tuple[<span class="number">1</span>], temp-&gt;tuple[<span class="number">2</span>], temp-&gt;tuple[<span class="number">3</span>]);</span><br><span class="line">                    cur++;</span><br><span class="line">                    low++;</span><br><span class="line">                    high--;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    *returnSize = cur;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/01/17.%20Letter%20Combinations%20of%20a%20Phone%20Number/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -885,206 +1062,6 @@ That seems quite difficult if we don’t sort the array ar the beginning, but af
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/07/26/10.%20Regular%20Expression%20Matching/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/26/10.%20Regular%20Expression%20Matching/" class="post-title-link" itemprop="url">10. Regular Expression Matching</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-07-26 00:00:00" itemprop="dateCreated datePublished" datetime="2020-07-26T00:00:00+08:00">2020-07-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="regular-expression-matching">10. Regular Expression Matching</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/regular-expression-matching/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given an input string (<code>s</code>) and a pattern (<code>p</code>), implement regular expression matching with support for <code>'.'</code> and <code>'*'</code>.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#39;.&#39; Matches any single character.</span><br><span class="line">&#39;*&#39; Matches zero or more of the preceding element.</span><br></pre></td></tr></table></figure>
-<p>The matching should cover the <strong>entire</strong> input string (not partial).</p>
-<p><strong>Note:</strong></p>
-<ul>
-<li><code>s</code> could be empty and contains only lowercase letters <code>a-z</code>.</li>
-<li><code>p</code> could be empty and contains only lowercase letters <code>a-z</code>, and characters like <code>.</code> or <code>*</code>.</li>
-</ul>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">isMatch</span><span class="params">(<span class="keyword">char</span> *s, <span class="keyword">char</span> *p)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>My own solution is too ugly so there I just talk about some other beautiful solutions.</p>
-<ol type="1">
-<li><p>First approach is use recursive thinking:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">isMatch</span><span class="params">(<span class="keyword">char</span> *s, <span class="keyword">char</span> *p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (*p == <span class="string">&#x27;\0&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> !*s;</span><br><span class="line">    <span class="keyword">int</span> match = *s &amp;&amp; ((*p == <span class="string">&#x27;.&#x27;</span>) || (*p == *s));</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strlen</span>(p) &gt; <span class="number">1</span> &amp;&amp; p[<span class="number">1</span>] == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> isMatch(s, p + <span class="number">2</span>) || (match &amp;&amp; isMatch(s + <span class="number">1</span>, p));</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> match &amp;&amp; isMatch(s + <span class="number">1</span>, p + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>THAT IS SO CONCISE!!!</strong></p>
-<p>The core idea is that first check if the first char in <code>s</code> and <code>p</code> is matched, and then check if the second char in <code>p</code> is asterisk (‘*’) , and list all the possible cases:</p>
-<ul>
-<li><code>char+*</code> matches zero chars -&gt; <code>isMatch(s, p+2)</code></li>
-<li><code>char+*</code> matches at least one char -&gt; <code>isMatch(s+1, p)&amp;&amp;isMatch</code></li>
-<li>a single <code>char</code> in pattern matches or not matches -&gt; <code>match &amp;&amp; isMatch(s + 1, p + 1)</code></li>
-</ul>
-<p>And the end condition is the <code>p</code> is empty, then return if not <code>s</code> is empty.</p></li>
-<li><p>Although the recursive version looks so temptated, BUT the worst time&amp;space complexity is bounded by <span class="math inline">\(\ O((m+n)*2^{(m+\frac{n}{2})}\)</span> , that is unacceptable, so we will use <em>dynamic programming</em> to optimize it.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">isMatch</span><span class="params">(<span class="keyword">char</span> *s, <span class="keyword">char</span> *p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> m = <span class="built_in">strlen</span>(s);</span><br><span class="line">    <span class="keyword">int</span> n = <span class="built_in">strlen</span>(p);</span><br><span class="line">    <span class="keyword">int</span> cache[m + <span class="number">1</span>][n + <span class="number">1</span>];</span><br><span class="line">    cache[m][n] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">        cache[i][n] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = m; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = n - <span class="number">1</span>; j &gt;= <span class="number">0</span>; j--) &#123;</span><br><span class="line">            <span class="keyword">int</span> match = s[i] &amp;&amp; (s[i] == p[j] || p[j] == <span class="string">&#x27;.&#x27;</span>);</span><br><span class="line">            <span class="keyword">if</span> ((j + <span class="number">1</span>) &lt; n &amp;&amp; p[j + <span class="number">1</span>] == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                cache[i][j] = cache[i][j + <span class="number">2</span>] || (match &amp;&amp; cache[i + <span class="number">1</span>][j]);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                cache[i][j] = match &amp;&amp; cache[i + <span class="number">1</span>][j + <span class="number">1</span>];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> cache[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>By using <em>dynamic programming</em>, we reduce the time&amp;space complexity to <span class="math inline">\(\ O(m*n)\)</span> ! The main idea is to do cache to store the intermediate results and <strong>re-use</strong> them later.</p>
-<p>I just use a (m+1)*(n+1) array, where <code>cache[i][j]</code> represents the match result of <code>s+i</code> and <code>p+j</code> . That helps me a lot, we can just use double for loops to fill the array iteratively. One thing need to mention is we need to manually fill the n-th column of <code>cache</code> , it’s a edge condition in this context.</p>
-<p>In my opinion, most of algorithm problems are mainly about doing cache and handling edge conditions, and they are the hardest part to learn and use.</p></li>
-</ol>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">isMatch</span><span class="params">(<span class="keyword">char</span> *s, <span class="keyword">char</span> *p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!s || !p)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> m = <span class="built_in">strlen</span>(s);</span><br><span class="line">    <span class="keyword">int</span> n = <span class="built_in">strlen</span>(p);</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((n &amp; <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; n; i += <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p[i] != <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//ensure i&lt;m and j&lt;n-1 in while loop</span></span><br><span class="line">    <span class="keyword">while</span> (i &lt; m &amp;&amp; j &lt; n - <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (p[j] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p[j + <span class="number">1</span>] == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (j + <span class="number">1</span> == n - <span class="number">1</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    j += <span class="number">2</span>;</span><br><span class="line">                    <span class="keyword">int</span> flag = <span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> index = i; index &lt;= m; index++) &#123;</span><br><span class="line">                        flag |= isMatch(s + index, p + j);</span><br><span class="line">                        <span class="keyword">if</span> (flag)</span><br><span class="line">                            <span class="keyword">return</span> flag;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> flag;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                i++;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (p[j + <span class="number">1</span>] == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">while</span> (i + count &lt; m &amp;&amp; s[i + count] == p[j]) &#123;</span><br><span class="line">                    count++;</span><br><span class="line">                &#125;</span><br><span class="line">                j += <span class="number">2</span>;</span><br><span class="line">                <span class="keyword">int</span> flag = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> index = i; index &lt;= count + i; index++) &#123;</span><br><span class="line">                    flag |= isMatch(s + index, p + j);</span><br><span class="line">                    <span class="keyword">if</span> (flag)</span><br><span class="line">                        <span class="keyword">return</span> flag;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> flag;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (s[i] != p[j]) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    i++;</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s += i;</span><br><span class="line">    p += j;</span><br><span class="line">    m -= i;</span><br><span class="line">    n -= j;</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((n &amp; <span class="number">1</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; n; i += <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p[i] != <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (*p == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> *s == *p;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/07/25/7.%20Reverse%20Integer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/07/25/7.%20Reverse%20Integer/" class="post-title-link" itemprop="url">7. Reverse Integer</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-07-25 00:00:00" itemprop="dateCreated datePublished" datetime="2020-07-25T00:00:00+08:00">2020-07-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="reverse-integer">7. Reverse Integer</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/reverse-integer/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given a 32-bit signed integer, reverse digits of an integer.</p>
-<p>Assume we are dealing with an environment which could only store integers within the 32-bit signed integer range: [−2<sup>31</sup>, 2<sup>31</sup> − 1]. For the purpose of this problem, assume that your function returns 0 when the reversed integer overflows.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">reverse</span><span class="params">(<span class="keyword">int</span> x)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<ol start="0" type="1">
-<li>NOTICE THAT, when we deal with specific digit number (in this problem is 32-bits), the overflow is one thing that worth the attention! Always think about if this sloc will cause overflow!! KEEP IN MIND the <code>INT_MIN</code> and <code>INT_MAX</code>.</li>
-<li>First I get the sign of the input number, and calculate its absolute value and store in <code>y</code> . Because of x can be <code>INT_MIN</code> (<code>0x80000000</code>), so before calculate its absolute value we need to declare <code>sign</code> and <code>y</code> as <code>long</code> to avoid overflow.</li>
-<li>Then desperate <code>y</code> digit by digit (base 10) and store the reverse order vector in <code>array</code>. Also set the <code>multi</code> be the largest power term. To avoid overflow we declare <code>multi</code> as <code>long</code>.</li>
-<li>In order to detect overflow, we declare <code>r</code> as <code>long</code> and test it with <code>0x000000007FFFFFFF</code> and <code>(long)(0xFFFFFFFF80000000)</code> to supervise if there occurred overflow.</li>
-</ol>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">reverse</span><span class="params">(<span class="keyword">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">long</span> sign = (x &gt;&gt; <span class="number">31u</span>) | <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">long</span> y = sign * x;</span><br><span class="line">    <span class="keyword">long</span> multi = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> <span class="built_in">array</span>[<span class="number">16</span>];</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (y &gt;= <span class="number">10</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">array</span>[cur++] = y % <span class="number">10</span>;</span><br><span class="line">        y /= <span class="number">10</span>;</span><br><span class="line">        multi *= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">array</span>[cur++] = y % <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">long</span> r = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cur; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        r += <span class="built_in">array</span>[i] * multi;</span><br><span class="line">        multi /= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    r *= sign;</span><br><span class="line">    <span class="keyword">if</span> (r &gt; <span class="number">0x000000007FFFFFFF</span> || r &lt; (<span class="keyword">long</span>)(<span class="number">0xFFFFFFFF80000000</span>))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1154,14 +1131,14 @@ That seems quite difficult if we don’t sort the array ar the beginning, but af
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-count">49</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
