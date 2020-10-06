@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"123.57.173.58","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="218.The Skyline Problem  source link  Description A city&#39;s skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Now suppose you are give">
+<meta property="og:type" content="article">
+<meta property="og:title" content="218.The Skyline Problem">
+<meta property="og:url" content="http://123.57.173.58/2020/10/05/218-The-Skyline-Problem/index.html">
+<meta property="og:site_name" content="Paradox&#39;s Blog">
+<meta property="og:description" content="218.The Skyline Problem  source link  Description A city&#39;s skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Now suppose you are give">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://assets.leetcode.com/uploads/2018/10/22/skyline1.png">
+<meta property="og:image" content="https://assets.leetcode.com/uploads/2018/10/22/skyline2.png">
+<meta property="article:published_time" content="2020-10-05T09:04:30.000Z">
+<meta property="article:modified_time" content="2020-10-05T12:59:30.017Z">
+<meta property="article:author" content="Paradox">
+<meta property="article:tag" content="Solution">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://assets.leetcode.com/uploads/2018/10/22/skyline1.png">
+
+<link rel="canonical" href="http://123.57.173.58/2020/10/05/218-The-Skyline-Problem/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>218.The Skyline Problem | Paradox's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Paradox's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/05/218-The-Skyline-Problem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          218.The Skyline Problem
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-05 17:04:30 / Modified: 20:59:30" itemprop="dateCreated datePublished" datetime="2020-10-05T17:04:30+08:00">2020-10-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/Binary-Index-Tree/" itemprop="url" rel="index"><span itemprop="name">Binary Index Tree</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="the-skyline-problem">218.The Skyline Problem</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/the-skyline-problem/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>A city's skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Now suppose you are <strong>given the locations and height of all the buildings</strong> as shown on a cityscape photo (Figure A), write a program to <strong>output the skyline</strong> formed by these buildings collectively (Figure B).</p>
+<p><img src="https://assets.leetcode.com/uploads/2018/10/22/skyline1.png" width="40%"></p>
+<p><img src="https://assets.leetcode.com/uploads/2018/10/22/skyline2.png" width="40%"></p>
+<p>The geometric information of each building is represented by a triplet of integers <code>[Li, Ri, Hi]</code>, where <code>Li</code> and <code>Ri</code> are the x coordinates of the left and right edge of the ith building, respectively, and <code>Hi</code> is its height. It is guaranteed that <code>0 ≤ Li, Ri ≤ INT_MAX</code>, <code>0 &lt; Hi ≤ INT_MAX</code>, and <code>Ri - Li &gt; 0</code>. You may assume all buildings are perfect rectangles grounded on an absolutely flat surface at height 0.</p>
+<p>For instance, the dimensions of all buildings in Figure A are recorded as: <code>[ [2 9 10], [3 7 15], [5 12 12], [15 20 10], [19 24 8] ]</code>.</p>
+<p>The output is a list of "<strong>key points</strong>" (red dots in Figure B) in the format of <code>[ [x1,y1], [x2, y2], [x3, y3], ... ]</code> that uniquely defines a skyline. <strong>A key point is the left endpoint of a horizontal line segment</strong>. Note that the last key point, where the rightmost building ends, is merely used to mark the termination of the skyline, and always has zero height. Also, the ground in between any two adjacent buildings should be considered part of the skyline contour.</p>
+<p>For instance, the skyline in Figure B should be represented as:<code>[ [2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0] ]</code>.</p>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>The number of buildings in any input list is guaranteed to be in the range <code>[0, 10000]</code>.</li>
+<li>The input list is already sorted in ascending order by the left x position <code>Li</code>.</li>
+<li>The output list must be sorted by the x position.</li>
+<li>There must be no consecutive horizontal lines of equal height in the output skyline. For instance, <code>[...[2 3], [4 5], [7 5], [11 5], [12 7]...]</code> is not acceptable; the three lines of height 5 should be merged into one in the final output as such: <code>[...[2 3], [4 5], [12 7], ...]</code></li>
+</ul>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">getSkyline</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; buildings)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>First I need to introduce the <code>multiset</code> in c++:</p>
+<ul>
+<li><code>multiset</code> is a stl container that can be implemented in <code>red-black tree</code> — a kind of <code>self-balance tree</code></li>
+<li><code>multiset</code> offers <code>O(log n)</code> time complexity insert, find, erase operations and some iterator api such as rbegin(Return the reverse iterator to reverse beginning), crbegin(Return const_reverse_iterator to reverse beginning)</li>
+</ul>
+<p>So now we have the powerful <code>multiset</code> to help us solve this problem. Below are the concrete procedures to solve that:</p>
+<ol type="1">
+<li>The data is about rectangle, so we need firstly convert the [l_coord, r_coord, h] triplet to [l_coord, h, LEFT], [r_coord, h, RIGHT], which indicates the begin and end of the rectangle.</li>
+<li>Sort the array we obtain in the first step, notice that when two point coord are equal, we sort it in h descending order when these points are LEFT and h ascending order when these points are RIGHT. This step is necessary because we need guarantee the right edge is behind the left edge and avoid the incorrect change of max height.</li>
+<li>Insert these points'h to multiset one-by-one, and monitors the max value in multiset, when it changes, we need to push the corresponding points to the result vector.</li>
+</ol>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">getSkyline</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; buildings)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; r;</span><br><span class="line">    <span class="keyword">if</span> (buildings.size() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">point</span> &#123;</span></span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="keyword">int</span> h;</span><br><span class="line">        <span class="keyword">bool</span> type;  <span class="comment">// 1 for left and 0 for right</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">vector</span>&lt;point&gt; <span class="built_in">array</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; buildings.size(); i++) &#123;</span><br><span class="line">        <span class="built_in">array</span>.push_back(&#123;buildings[i][<span class="number">0</span>], buildings[i][<span class="number">2</span>], <span class="number">1</span>&#125;);</span><br><span class="line">        <span class="built_in">array</span>.push_back(&#123;buildings[i][<span class="number">1</span>], buildings[i][<span class="number">2</span>], <span class="number">0</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    sort(<span class="built_in">array</span>.begin(), <span class="built_in">array</span>.end(), [](point a, point b) &#123;</span><br><span class="line">        <span class="keyword">if</span> (a.x != b.x) &#123;</span><br><span class="line">            <span class="keyword">return</span> a.x &lt; b.x;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (a.type &amp;&amp; b.type) &#123;</span><br><span class="line">            <span class="keyword">return</span> a.h &gt; b.h;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!a.type &amp;&amp; !b.type) &#123;</span><br><span class="line">            <span class="keyword">return</span> a.h &lt; b.h;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> a.type;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">priority_queue</span>&lt;<span class="keyword">int</span>&gt; q;</span><br><span class="line">    q.push(<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">    v.push_back(<span class="number">0</span>);</span><br><span class="line">    v.push_back(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">int</span> prev = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">multiset</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">set</span>;</span><br><span class="line">    <span class="built_in">set</span>.insert(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; e : <span class="built_in">array</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (e.type) &#123;</span><br><span class="line">            <span class="built_in">set</span>.insert(e.h);</span><br><span class="line">            <span class="keyword">if</span> (prev != *<span class="built_in">set</span>.rbegin()) &#123;</span><br><span class="line">                v[<span class="number">0</span>] = e.x;</span><br><span class="line">                v[<span class="number">1</span>] = e.h;</span><br><span class="line">                r.push_back(v);</span><br><span class="line">                prev = *<span class="built_in">set</span>.rbegin();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">set</span>.erase(<span class="built_in">set</span>.find(e.h));</span><br><span class="line">            <span class="keyword">if</span> (prev != *<span class="built_in">set</span>.rbegin()) &#123;</span><br><span class="line">                v[<span class="number">0</span>] = e.x;</span><br><span class="line">                v[<span class="number">1</span>] = *<span class="built_in">set</span>.rbegin();</span><br><span class="line">                r.push_back(v);</span><br><span class="line">                prev = *<span class="built_in">set</span>.rbegin();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Solution/" rel="tag"># Solution</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/02/51-N-Queens/" rel="prev" title="51.N-Queens">
+      <i class="fa fa-chevron-left"></i> 51.N-Queens
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/05/307-Range-Sum-Query-Mutable/" rel="next" title="307.Range Sum Query - Mutable">
+      307.Range Sum Query - Mutable <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#the-skyline-problem"><span class="nav-number">1.</span> <span class="nav-text">218.The Skyline Problem</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#description"><span class="nav-number">1.0.1.</span> <span class="nav-text">Description</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#signature"><span class="nav-number">1.0.2.</span> <span class="nav-text">Signature</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#analysis"><span class="nav-number">1.0.3.</span> <span class="nav-text">Analysis</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#solution"><span class="nav-number">1.0.4.</span> <span class="nav-text">Solution</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Paradox</p>
+  <div class="site-description" itemprop="description">What I have learned</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Paradox</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

