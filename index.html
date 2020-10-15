@@ -166,6 +166,343 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/15/493-Reverse-Pairs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/15/493-Reverse-Pairs/" class="post-title-link" itemprop="url">493.Reverse Pairs</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-15 09:42:59 / Modified: 10:17:51" itemprop="dateCreated datePublished" datetime="2020-10-15T09:42:59+08:00">2020-10-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/Binary-Index-Tree/" itemprop="url" rel="index"><span itemprop="name">Binary Index Tree</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="reverse-pairs">493.Reverse Pairs</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/reverse-pairs/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given an array <code>nums</code>, we call <code>(i, j)</code> an *<strong>important reverse pair*</strong> if <code>i &lt; j</code> and <code>nums[i] &gt; 2*nums[j]</code>.</p>
+<p>You need to return the number of important reverse pairs in the given array.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">reversePairs</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>这个题本质上和<a target="_blank" rel="noopener" href="https://leetcode.com/problems/count-of-smaller-numbers-after-self">315.Count of Smaller Numbers After Self</a>是一样的, 都是对数组中每个元素求后面元素满足xx条件的个数再求和, 并且一定得保证nlogn的复杂度</p>
+<ul>
+<li><p>Approach 1: binary search tree</p>
+<p>以红黑树为例, 在node_t结构中加上左(右)子树中元素总数, 对nums从前往后进行遍历, 每轮遍历查询红黑树中严格比自己二倍大的元素个数再插入自身到红黑树中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sum = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> nums:</span><br><span class="line">		sum += tree.query_index(<span class="number">2</span>*e)</span><br><span class="line">		tree.insert(e)</span><br><span class="line"><span class="keyword">return</span> sum</span><br></pre></td></tr></table></figure>
+<p>由于红黑树中查找插入包括查找成功后向上回溯查找index都是logn的操作, 三个logn操作总体上是nlogn的复杂度</p></li>
+<li><p>Approach 2: binary indexed tree</p>
+<p>使用bit的话相当于对一个和nums等长但是每一位标志着sort后nums在该位index是否被遍历到了的(遍历到是1, 没遍历到是0)的数组维护一个bit, 先创建一个copy作nums备份, 然后sort copy, 再遍历nums, 每轮查找自身二倍元素在copy中的index然后求这个index往后的区域和(在原数组中index比他小的元素有多少大于它的二倍), 然后把自身在copy中的index插入bit中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sum = <span class="number">0</span></span><br><span class="line">copy = list(nums)</span><br><span class="line">sort(copy)</span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> nums:</span><br><span class="line">  	sum += bit.query(index(copy, <span class="number">2</span>*e))</span><br><span class="line">    bit.insert(index(copy, e))</span><br><span class="line"><span class="keyword">return</span> sum</span><br></pre></td></tr></table></figure>
+<p>对数组排序, bit中插入查询以及在有序数组中的查找复杂度都是logn, 所以总体上复杂度是nlogn</p></li>
+<li><p>Approach 3: merge sort</p>
+<p>对每次mergesort, 在合并两个subarray之前, 遍历后一个subarray, 对每个元素自身的二倍在前一个有序的subarray中作二分查找, 这样能得到这次做mergesort的subarray中Reverse Pairs的总数(其实也是divide and conquer思想, 在这位老哥总结的<a target="_blank" rel="noopener" href="https://leetcode.com/problems/reverse-pairs/discuss/97268/General-principles-behind-problems-similar-to-%22Reverse-Pairs%22/118930">general principles</a>中算是<strong><code>Partition recurrence relation</code></strong>, 二分的拆分成子问题)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mid = (begin + end)/<span class="number">2</span></span><br><span class="line">cnt = merge_sort(begin, mid) + merge_sort(mid, end)</span><br><span class="line"><span class="keyword">for</span> e <span class="keyword">in</span> nums[mid:end]:</span><br><span class="line">  	sum += (mid - index(nums, begin, mid, <span class="number">2</span>*e))</span><br><span class="line"><span class="keyword">return</span> cnt</span><br></pre></td></tr></table></figure>
+<p>merge sort总的要进行logn次, 每次merge sort中查找是logn的复杂度, 但合并是n的复杂度, 故整体是nlogn的复杂度</p></li>
+</ul>
+<p>这三种方法第一个是bst过不了测例, 红黑树太麻烦了; 第二个一直超时也不知道为啥; 最后用merge sort写的总算过了</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">helper</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> begin, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (begin + <span class="number">1</span> &gt;= end) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> mid = (begin + end) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">int</span> cnt = helper(nums, begin, mid) + helper(nums, mid, end);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = mid; i &lt; end; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> low = begin;</span><br><span class="line">        <span class="keyword">int</span> high = mid;</span><br><span class="line">        <span class="keyword">int</span> middle;</span><br><span class="line">        <span class="keyword">long</span> <span class="keyword">long</span> cur = <span class="number">2L</span>L * nums[i];</span><br><span class="line">        <span class="keyword">if</span> (cur &gt;= nums[low]) &#123;</span><br><span class="line">            <span class="keyword">while</span> (low + <span class="number">1</span> &lt; high) &#123;</span><br><span class="line">                middle = (low + high) / <span class="number">2</span>;</span><br><span class="line">                <span class="keyword">if</span> (cur &lt; nums[middle]) &#123;</span><br><span class="line">                    high = middle;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    low = middle;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            low++;</span><br><span class="line">        &#125;</span><br><span class="line">        cnt += (mid - low);</span><br><span class="line">    &#125;</span><br><span class="line">    inplace_merge(nums.begin() + begin, nums.begin() + mid, nums.begin() + end);</span><br><span class="line">    <span class="keyword">return</span> cnt;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">reversePairs</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> helper(nums, <span class="number">0</span>, nums.size());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/15/binary-search/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/15/binary-search/" class="post-title-link" itemprop="url">binary search</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-15 08:33:52 / Modified: 09:42:34" itemprop="dateCreated datePublished" datetime="2020-10-15T08:33:52+08:00">2020-10-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/algorithm/" itemprop="url" rel="index"><span itemprop="name">algorithm</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这篇文章是深度剖析下binary search用, 近几天写算法发现自己对最基础的binary search了解还是不够深, 被各种区间边界折磨的痛苦不堪, 故理理思路.</p>
+<h5 id="pseudocode">Pseudocode</h5>
+<p>First I will give the pseudocode of the binary search and organize the basic idea</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">low = <span class="number">0</span>;</span><br><span class="line">high = arr.size();</span><br><span class="line"><span class="keyword">while</span>(low + <span class="number">1</span> &lt; high)&#123;</span><br><span class="line">    mid = (low + high)/<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(val &lt; arr[mid])&#123;</span><br><span class="line">    		high = mid;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(val == arr[mid])&#123;</span><br><span class="line">    		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    		low = mid + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p>Above is the most common and standard <em>binary search</em>, but the problem is — we usually hope that search function give some extra info instead of just true or false, such as the index of the specific val even if val isn’t in the given arr.</p>
+<h5 id="index-index">Index? Index!</h5>
+<p>So to answer that question we need to go back to the pseudocode, note that in every loop subroutine, we search <code>val</code> in <code>arr[low:high]</code>(not include high) ,cmp the specific <code>val</code> with <code>arr[mid]</code> and continue search in subarray <code>arr[low:mid]</code> or <code>arr[mid+1:high]</code> if arr[mid]!=val until condition <em>low+1&lt;high</em> not handle — i.e. the subarray just contain one element <code>arr[low]</code>.</p>
+<p>Now we do some modify to the above pseudocode so that get the <code>low</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">low = <span class="number">0</span>;</span><br><span class="line">high = arr.size();</span><br><span class="line"><span class="keyword">while</span>(low + <span class="number">1</span> &lt; high)&#123;</span><br><span class="line">    mid = (low + high)/<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(val &lt; arr[mid])&#123;</span><br><span class="line">    		high = mid;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    		low = mid;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> low + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>It’s obviously that we only update <code>low</code> to <code>mid</code> when <code>val</code> greater than or equal to <code>arr[mid]</code>, this is quite important because it guarantees <code>low</code> is still move forward even <code>arr[low]==val</code> and <code>arr[low]</code> is always less than or equal to <code>val</code>! So the return value is the index of the first element strictly greater than <code>val</code>. But if <code>arr[0]&gt;val</code>, the expected return value should be 0, but the retuen value is 1, so we need to add below segment to the start of function:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(val &lt; arr[<span class="number">0</span>])&#123;</span><br><span class="line">  	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/15/2020-10-14/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/15/2020-10-14/" class="post-title-link" itemprop="url">Wed Oct 14 2020 08:00:00 GMT+0800 (China Standard Time)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-15 08:31:18 / Modified: 08:33:37" itemprop="dateCreated datePublished" datetime="2020-10-15T08:31:18+08:00">2020-10-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="上午">上午</h4>
+<ul>
+<li>微分几何课</li>
+</ul>
+<h4 id="下午">下午</h4>
+<ul>
+<li>终于会用叠加原理齐次化原理算偏微分的那两个初值问题了</li>
+<li>看493. Reverse Pairs的bit解法</li>
+</ul>
+<h4 id="晚上">晚上</h4>
+<ul>
+<li>看493. Reverse Pairs的merge sort解法</li>
+<li>自己做的代码实现全都通不过, 干, 明天好好剖析下binary search</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/13/2020-10-12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/13/2020-10-12/" class="post-title-link" itemprop="url">Mon Oct 12 2020 08:00:00 GMT+0800 (China Standard Time)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-13 10:41:53 / Modified: 10:42:15" itemprop="dateCreated datePublished" datetime="2020-10-13T10:41:53+08:00">2020-10-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="上午">上午</h4>
+<ul>
+<li></li>
+</ul>
+<h4 id="下午">下午</h4>
+<ul>
+<li>概率论, 偏微分</li>
+</ul>
+<h4 id="晚上">晚上</h4>
+<ul>
+<li>偏微分</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/11/2020-10-11/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -669,385 +1006,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/06/2020-10-6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/06/2020-10-6/" class="post-title-link" itemprop="url">2020-10-6</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-10-06 22:44:09 / Modified: 22:48:17" itemprop="dateCreated datePublished" datetime="2020-10-06T22:44:09+08:00">2020-10-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="上午">上午</h4>
-<ul>
-<li><p>由了解RELRO为动力写了篇着重介绍PLT, GOT表以及动态加载机制的文章</p>
-<p>CSAPP上啥都有, 就是我看的不仔细, CSAPP永远滴神</p></li>
-</ul>
-<h4 id="下午">下午</h4>
-<ul>
-<li>每日一题315.Count of Smaller Numbers After Self, 我用multiset写了个感觉是<code>O(nlog n)</code>的结果超时, discussion里有直接用BST写的都能超80% submissions… 吐槽他们选的测试集… 应该用自平衡树的啊...</li>
-</ul>
-<h4 id="晚上">晚上</h4>
-<ul>
-<li>Eu4, 英法战争一小输一大输丧失了陆权, 悲</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/06/315-Count-of-Smaller-Numbers-After-Self/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/06/315-Count-of-Smaller-Numbers-After-Self/" class="post-title-link" itemprop="url">315.Count of Smaller Numbers After Self</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-10-06 22:29:31 / Modified: 22:43:58" itemprop="dateCreated datePublished" datetime="2020-10-06T22:29:31+08:00">2020-10-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/Binary-Index-Tree/" itemprop="url" rel="index"><span itemprop="name">Binary Index Tree</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="count-of-smaller-numbers-after-self">315.Count of Smaller Numbers After Self</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/count-of-smaller-numbers-after-self/description/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>You are given an integer array <em>nums</em> and you have to return a new <em>counts</em> array. The <em>counts</em> array has the property where <code>counts[i]</code> is the number of smaller elements to the right of <code>nums[i]</code>.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">countSmaller</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>In this problem I won’t give the solution because a simple binary search tree can pass all the test cases and beat more than 80% submissions… Later I will implement red-black tree or another self-balance tree.</p>
-<p>To solve this problem, you just need to iterate all elements in <code>nums</code> in reverse order and maintain a orderly structure to let the current element insert in and get its index info.</p>
-<p>So the self-balance tree is the perfect choice, it allows insert in <code>O(log n)</code> time and can get the specific index while do insert.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/06/%E7%AE%80%E4%BB%8Blinux%E4%B8%8Bexecutable%E7%9A%84%E5%87%A0%E7%A7%8D%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/06/%E7%AE%80%E4%BB%8Blinux%E4%B8%8Bexecutable%E7%9A%84%E5%87%A0%E7%A7%8D%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6/" class="post-title-link" itemprop="url">简介linux下executable的几种保护机制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-10-06 09:06:23 / Modified: 15:08:07" itemprop="dateCreated datePublished" datetime="2020-10-06T09:06:23+08:00">2020-10-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/ctf/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="简介linux下executable的几种保护机制">简介linux下executable的几种保护机制</h3>
-<p>本文是我在了解RELRO时感觉我对.plt和.got了解太少了, 于是补全下我对elf链接机制的空白.</p>
-<p>如题, 首先来介绍几种常见的anti-exploit机制:</p>
-<ul>
-<li><p>NX保护</p>
-<p>开启了NX保护后栈区不可执行, 读写执行权限由页表给出, 早期由于硬件的问题, 权限只能分为read-only和writeable&amp;executable, 但近年随着硬件支持, executable可作为单独的权限给出(page table中的NX位)</p></li>
-<li><p>canary</p>
-<p>这个选项在gcc中默认开启, 会在返回地址和saved register下创建一个canary值, 在函数ret之前会检查该值, 若发现被改变则会直接跳转至<code>__stack_chk_fail</code> 从而防止栈溢出攻击</p>
-<p>常用的规避方式有</p>
-<ul>
-<li>泄漏canary值进行二次注入</li>
-<li>劫持<code>__stack_chk_fail</code></li>
-</ul></li>
-<li><p>ASLR</p>
-<ul>
-<li>.so文件会被加载到随机地址</li>
-<li>ld时如果有-pie option, .text段的加载地址也会被随机化</li>
-<li>stack, heap地址随机化</li>
-</ul></li>
-<li><p>RELRO(relocation read-only)</p>
-<p>需要先介绍elf的.got, .plt段</p></li>
-</ul>
-<h5 id="got-.plt">.got &amp; .plt</h5>
-<p>As we already know, the elf include main symbol after linking does not include everything! For example, if you use <code>printf</code> in your program, the binary for <code>printf</code> doesn’t in your elf such like text segment even you have done link. So your program still need <code>shared library</code> at load time or runtime. The GOT&amp;PLT segment are the keys to code&amp;use dynamic or shared library.</p>
-<p>PLT stands for Procedure Linkage Table, it is used to called the extern function whose address isn’t know at linking time, such as the dynamic shared library. The entry in plt is left to be resolved by dynamic linker at run time.</p>
-<p>GOT stands for Global Offsets Table, as its name, every entry in GOT represents a offset because there is a fact that the distance between data segment and code segment is fixed. After dynamic linking entries in GOT are relocated to absolute address.</p>
-<p>PIC(Position-Independent Code) can be implemented by a interesting mechanism called lazy binding: delay the bind of absolute address of shared library’s symbols to the first reference occured.</p>
-<p>(切成中文) GOT表中第0项是.dynamic的地址, 第一项是reloc entry的地址, 这两项是动态链接器解析地址时会用到的信息, 第2项是动态链接器的入口</p>
-<p>PLT表中第0项调用动态链接器, 第一项是系统启动函数<code>__libc_start_main</code>, 执行初始化环境</p>
-<p>这种机制使得在.text段中调用的函数只是一个壳子, 在第一次调用时:</p>
-<ol type="1">
-<li>对函数的调用会跳转到PLT表中对应的条目, 第一条指令会把该函数ID压入栈中</li>
-<li>这个条目跳转到对应GOT表条目</li>
-<li>此时GOT表条目简单的指向PLT中对应条目的第二条指令</li>
-<li>继续执行跳转到PLT[0]</li>
-<li>把GOT[1]压入栈中, 跳转到GOT[2]进入动态链接器</li>
-<li>动态链接器重写GOT对应条目并交换控制给调用函数</li>
-</ol>
-<p>之后调用就只是简单的跳转到PLT再到GOT调用目标函数了</p>
-<h5 id="relro">RELRO!!!</h5>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -g -O0 -Wl,-z,relro,-z,now -o &lt;binary_name&gt; &lt;source_code&gt;</span><br></pre></td></tr></table></figure>
-<p>RELRO分为partial RELRO和full RELRO</p>
-<ul>
-<li><p>partial RELRO</p>
-<p>It’s also possible to compile with partial RELRO, which can be achieved by using the "-<code>z,relro</code>" option and not the "<code>-z,now</code>" on the gcc command line.</p>
-<p>In partial RELRO, the non-PLT part of the GOT section (.got from readelf output) is read only but .got.plt is still writeable.</p></li>
-<li><p>full RELRO</p>
-<p>In complete RELRO, the entire GOT (.got and .got.plt both) is marked as read-only.</p>
-<p>使用了-z,now option使得所有PLT指向的GOT项在加载开始时全部重定向完毕再把整个GOT表权限改为read-only</p></li>
-</ul>
-<p>所以其实partial RELRO没啥用, 仍然可以通过改GOT表的方式劫持程序, 进行getshell之类的操作</p>
-<h5 id="reference">Reference</h5>
-<ul>
-<li><p>CSAPP</p></li>
-<li><p>《ctf特训营》— FlappyPig</p></li>
-<li><p>https://en.wikipedia.org/wiki/Global_Offset_Table</p></li>
-<li><p>https://reverseengineering.stackexchange.com/questions/1992/what-is-plt-got</p></li>
-<li><p>https://www.technovelty.org/linux/plt-and-got-the-key-to-code-sharing-and-dynamic-libraries.html</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/06/2020-10-5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/06/2020-10-5/" class="post-title-link" itemprop="url">2020-10-5</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-10-06 08:32:30 / Modified: 08:49:06" itemprop="dateCreated datePublished" datetime="2020-10-06T08:32:30+08:00">2020-10-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="上午下午">上午&amp;下午</h4>
-<ul>
-<li><p>看10.4晚上那道算法题<code>218.The Skyline Problem</code></p>
-<ul>
-<li>“扫线法”</li>
-<li>c++ 中的 priority_queue 和 multiset 结构, multiset内部实现可用红黑树</li>
-</ul></li>
-</ul>
-<h4 id="晚上">晚上</h4>
-<ul>
-<li><p>每日一题307.Range Sum Query - Mutable</p>
-<p>这道题是用的我没听说的数据结构 — Binary Index Tree, 利用这个结构, 可以在<code>O(n)</code>时间内完成构造, <code>O(log n)</code>时间内完成查询前缀和和更新操作</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1113,7 +1075,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">71</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

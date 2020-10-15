@@ -166,6 +166,382 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/23/42.Trapping%20Rain%20Water/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/23/42.Trapping%20Rain%20Water/" class="post-title-link" itemprop="url">42.Trapping Rain Water</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-23 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-23T00:00:00+08:00">2020-09-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="trapping-rain-water">42.Trapping Rain Water</h3>
+<blockquote>
+<p><a href="">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it is able to trap after raining.</p>
+<p><img src="https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png" /></p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">trap</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; height)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>First find the most height bar, then divide the map into two parts by the bar we found.</p>
+<p>In each part we start search at the heightest bar and then the heightest bar in the rest bars until reach the edge. Then we can simple traverse each part and add the corresponding height of water at each bar.</p>
+<p>Time complexity: O(n)</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">trap</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; height)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (height.size() &lt; <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> max = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; height.size(); i++) &#123;</span><br><span class="line">        max = height[i] &gt; height[max] ? i : max;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// printf(&quot;max index:%d\n&quot;, max);</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">array</span>[height.size()];</span><br><span class="line">    <span class="keyword">if</span> (max &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="built_in">array</span>[<span class="number">0</span>] = max;</span><br><span class="line">        <span class="built_in">array</span>[<span class="number">1</span>] = max - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> cur = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = max - <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">            <span class="keyword">int</span> j;</span><br><span class="line">            <span class="keyword">for</span> (j = cur - <span class="number">1</span>; j &gt;= <span class="number">1</span> &amp;&amp; height[<span class="built_in">array</span>[j]] &lt; height[i]; j--)</span><br><span class="line">                ;</span><br><span class="line">            <span class="built_in">array</span>[j + <span class="number">1</span>] = i;</span><br><span class="line">            cur = j + <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// for (int i = 0; i &lt; cur; i++) &#123;</span></span><br><span class="line">        <span class="comment">//     printf(&quot;%d &quot;, array[i]);</span></span><br><span class="line">        <span class="comment">// &#125;</span></span><br><span class="line">        <span class="comment">// printf(&quot;\n&quot;);</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cur - <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="built_in">array</span>[i + <span class="number">1</span>] + <span class="number">1</span>; j &lt; <span class="built_in">array</span>[i]; j++) &#123;</span><br><span class="line">                sum += (height[<span class="built_in">array</span>[i + <span class="number">1</span>]] - height[j]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (max &lt; height.size() - <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">array</span>[<span class="number">0</span>] = max;</span><br><span class="line">        <span class="built_in">array</span>[<span class="number">1</span>] = max + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> cur = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = max + <span class="number">2</span>; i &lt; height.size(); i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> j;</span><br><span class="line">            <span class="keyword">for</span> (j = cur - <span class="number">1</span>; j &gt;= <span class="number">1</span> &amp;&amp; height[<span class="built_in">array</span>[j]] &lt; height[i]; j--)</span><br><span class="line">                ;</span><br><span class="line">            <span class="built_in">array</span>[j + <span class="number">1</span>] = i;</span><br><span class="line">            cur = j + <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// for (int i = 0; i &lt; cur; i++) &#123;</span></span><br><span class="line">        <span class="comment">//     printf(&quot;%d &quot;, array[i]);</span></span><br><span class="line">        <span class="comment">// &#125;</span></span><br><span class="line">        <span class="comment">// printf(&quot;\n&quot;);</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cur - <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="built_in">array</span>[i] + <span class="number">1</span>; j &lt; <span class="built_in">array</span>[i + <span class="number">1</span>]; j++) &#123;</span><br><span class="line">                sum += (height[<span class="built_in">array</span>[i + <span class="number">1</span>]] - height[j]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/22/40.Combination%20Sum%20II/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/22/40.Combination%20Sum%20II/" class="post-title-link" itemprop="url">40.Combination Sum II</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-22 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-22T00:00:00+08:00">2020-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="combination-sum-ii">40.Combination Sum II</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/combination-sum-ii/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sums to target.</p>
+<p>Each number in candidates may only be used once in the combination.</p>
+<p>All numbers (including target) will be positive integers. The solution set must not contain duplicate combinations.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">combinationSum2</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;candidates, <span class="keyword">int</span> target)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>My solution:</p>
+<p>Like the previous problem 39, just use backtracing algorithm, but always examine the return list before adding path to avoid duplicate combinations. <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">backtrace</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;<span class="built_in">array</span>, <span class="keyword">int</span> begin, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; &amp;r, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;path, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = begin; i &lt; <span class="built_in">array</span>.size() &amp;&amp; <span class="built_in">array</span>[i] &lt;= target; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">array</span>[i] == target) &#123;</span><br><span class="line">            path.push_back(<span class="built_in">array</span>[i]);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = r.size() - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">                <span class="keyword">if</span> (r[i] == path) &#123;</span><br><span class="line">                    <span class="keyword">goto</span> pop;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            r.push_back(path);</span><br><span class="line">        pop:</span><br><span class="line">            path.pop_back();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            path.push_back(<span class="built_in">array</span>[i]);</span><br><span class="line">            backtrace(<span class="built_in">array</span>, i + <span class="number">1</span>, r, path, target - <span class="built_in">array</span>[i]);</span><br><span class="line">            path.pop_back();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">combinationSum2</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;candidates, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    sort(candidates.begin(), candidates.end());</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; r;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path;</span><br><span class="line">    backtrace(candidates, <span class="number">0</span>, r, path, target);</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>But my solution examine the whole result list every time it attempts to add path to result, that causes serious time waste, so I take a look at the discussion and bring a better one.</p>
+<p>The better solution first examine if the current target greater than 0 and will start dfs when that condition is true. The method to avoid add duplicate path is do not add duplicate element in every <code>backtrace</code> : <code>i &gt; begin &amp;&amp; array[i] == array[i - 1]</code> .</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">backtrace</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;<span class="built_in">array</span>, <span class="keyword">int</span> begin, <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; &amp;r, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;path, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (target == <span class="number">0</span>) &#123;</span><br><span class="line">        r.push_back(path);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (target &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = begin; i &lt; <span class="built_in">array</span>.size() &amp;&amp; <span class="built_in">array</span>[i] &lt;= target; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (i &gt; begin &amp;&amp; <span class="built_in">array</span>[i] == <span class="built_in">array</span>[i - <span class="number">1</span>]) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        path.push_back(<span class="built_in">array</span>[i]);</span><br><span class="line">        backtrace(<span class="built_in">array</span>, i + <span class="number">1</span>, r, path, target - <span class="built_in">array</span>[i]);</span><br><span class="line">        path.pop_back();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">combinationSum2</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;candidates, <span class="keyword">int</span> target)</span> </span>&#123;</span><br><span class="line">    sort(candidates.begin(), candidates.end());</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; r;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; path;</span><br><span class="line">    backtrace(candidates, <span class="number">0</span>, r, path, target);</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/22/41.First%20Missing%20Positive/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/22/41.First%20Missing%20Positive/" class="post-title-link" itemprop="url">41.First Missing Positive</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-22 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-22T00:00:00+08:00">2020-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="first-missing-positive">41.First Missing Positive</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/first-missing-positive/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given an unsorted integer array, find the smallest missing positive integer.</p>
+<p>Your algorithm should run in O(n) time and uses constant extra space.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">firstMissingPositive</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>The basic idea is that place all elements in list to there proper position: let nums[i] = i+1 as much as possible, so after the <code>O(n)</code> swap process, we can traverse the list to find the first element does not meet the requirement and that is the solution! If all elements can find its proper position in <code>nums</code>, we just return <code>nums.size()+1</code> and that is the required value.</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">firstMissingPositive</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.size(); i++) &#123;</span><br><span class="line">            <span class="keyword">while</span> (nums[i] &gt; <span class="number">0</span> &amp;&amp; nums[i] &lt;= nums.size() &amp;&amp; nums[i] != nums[nums[i] - <span class="number">1</span>]) &#123;</span><br><span class="line">                swap(nums[i], nums[nums[i] - <span class="number">1</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.size(); i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] != i + <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> i + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> nums.size() + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/22/rop%E9%9A%8F%E7%AC%94(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/22/rop%E9%9A%8F%E7%AC%94(1)/" class="post-title-link" itemprop="url">rop随笔(1)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-09-22 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-22T00:00:00+08:00">2020-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-27 10:36:35" itemprop="dateModified" datetime="2020-09-27T10:36:35+08:00">2020-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ctf/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="rop随笔1">rop随笔(1)</h2>
+<h4 id="x0-background">0x0 background</h4>
+<p>昨天做了一天西工大pwn方向的hello world题, 只做出来了两道(一道是大佬给的flag), 深感自己太菜了, 为了顺一顺思路故写篇博客</p>
+<h4 id="x1-appetizer">0x1 appetizer</h4>
+<p>首先记录下昨天做题过程中一些疑惑的小细节:</p>
+<ul>
+<li><p>栈是向下生长的, x86-64架构下是小端法表示, 各种基本类型的指针都是指向栈顶方向, 比如向char类型数组中写数据是从低往高写的(这也是能够进行栈溢出攻击的原理)</p></li>
+<li><p>在进行栈溢出攻击的时候应该要考虑栈随机化和堆随机化, 所以不能直接用栈中的绝对地址覆盖返回地址!!! 这个地址不一定有写的权限或者可能覆盖其他一些重要的代码片段从而报segment fault</p></li>
+<li><p>call指令: 把下一条指令的地址压入栈中, 把<code>%rip</code>的值设置为call的operand</p>
+<blockquote>
+<p><code>push %rip</code> -&gt; <code>jmp operand</code></p>
+</blockquote></li>
+<li><p>ret指令: 把当前栈指针指向的地址弹出到<code>%rip</code>中</p>
+<blockquote>
+<p><code>pop %r15</code> -&gt; <code>jmp %r15</code></p>
+</blockquote></li>
+<li><p>gdb调试下环境不完全是真实环境, 比如栈随机化很可能就不会开(昨天在这里卡了很长时间)</p></li>
+<li><p>向栈中传入地址时由于是小端法表示且指针指向最小的地址, 所以要把传入的地址先反序一下</p></li>
+</ul>
+<h4 id="x2-main-course">0x2 main course</h4>
+<p>进行攻击的基本原理是当目标程序进行读操作时, 如果有栈溢出漏洞导致可以读入比在栈中分配缓存更大的字节, 就可以达到覆盖返回地址进行攻击的目的</p>
+<p><strong>WARNING</strong>: 本小节描述方法仅限于没开NX的程序</p>
+<p>具体操作:</p>
+<ol type="1">
+<li>阅读目标elf的objdump, 寻找到一个data或bss段字节恰好能翻译成类似<code>jmp %rsp</code>的片段的地址, 称为gadget</li>
+<li>准备好要执行的payload, 比如<code>execve("/bin/sh",NULL,NULL)</code>来打开shell为所欲为</li>
+<li>payload由占位符+目标地址(覆盖原返回地址)+shellcode组成</li>
+<li>被攻击的subroutine在执行完<code>ret</code>之后就会跳转到目标地址然后再跳转到栈指针的位置向上执行你植入的shellcode</li>
+</ol>
+<h4 id="x3-dessert">0x3 dessert</h4>
+<ul>
+<li>一般对于64位程序, 地址可能会有一些leading 0, 这样如果目标subroutine做的是string-based buffer, 一般就不能直接覆盖</li>
+<li>jmp esp类的攻击比nop sled更加优良, 可以避免因为多次猜地址错误而在服务器端留下大量crush log</li>
+<li>其实这个有很多花活, 比如寻找gadget然后再调用read二次注入shellcode到任意一个rwx段再jmp到二次注入的shellcode执行</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/20/mfs%E6%94%BB%E5%87%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -708,356 +1084,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/22/29.%20Divide%20Two%20Integers/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/22/29.%20Divide%20Two%20Integers/" class="post-title-link" itemprop="url">29. Divide Two Integers</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-22 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-22T00:00:00+08:00">2020-08-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="divide-two-integers">29. Divide Two Integers</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/divide-two-integers/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given two integers <code>dividend</code> and <code>divisor</code>, divide two integers without using multiplication, division and mod operator.</p>
-<p>Return the quotient after dividing <code>dividend</code> by <code>divisor</code>.</p>
-<p>The integer division should truncate toward zero, which means losing its fractional part. For example, <code>truncate(8.345) = 8</code> and <code>truncate(-2.7335) = -2</code>.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">divide</span><span class="params">(<span class="keyword">int</span> dividend, <span class="keyword">int</span> divisor)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>Deal with overflow is toooooo frustrating, the problem require all integer is 32-bit, but finally I use the 64-bit long because of time limit.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">divide</span><span class="params">(<span class="keyword">int</span> dividend, <span class="keyword">int</span> divisor)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sign1 = dividend &gt;&gt; <span class="number">31</span>;</span><br><span class="line">    <span class="keyword">int</span> sign2 = divisor &gt;&gt; <span class="number">31</span>;</span><br><span class="line">    <span class="keyword">if</span> (dividend == <span class="number">0x80000000</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (divisor == <span class="number">-1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0x7fffffff</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (divisor == <span class="number">0x80000000</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    dividend = sign1 ? dividend : (~dividend + <span class="number">1</span>);</span><br><span class="line">    divisor = sign2 ? divisor : (~divisor + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (dividend &gt; divisor) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    sign1 = sign1 ^ sign2;</span><br><span class="line">    sign2 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (dividend &lt;= divisor) &#123;</span><br><span class="line">        <span class="keyword">int</span> temp = -divisor;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (dividend &lt;= (-temp)) &#123;</span><br><span class="line">            dividend += temp;</span><br><span class="line">            temp &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">            i &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        sign2 += (<span class="number">1</span> - i);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sign1 ? sign2 : -sign2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/21/28.%20Implement%20strStr()/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/21/28.%20Implement%20strStr()/" class="post-title-link" itemprop="url">28. Implement strStr()</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-21 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-21T00:00:00+08:00">2020-08-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="implement-strstr">28. Implement strStr()</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/implement-strstr/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Implement <a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/cstring/strstr/">strStr()</a>.</p>
-<p>Return the index of the first occurrence of needle in haystack, or <strong>-1</strong> if needle is not part of haystack.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">strStr</span>(<span class="params">self, haystack: str, needle: str</span>) -&gt; int</span></span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>kmp O(n) algorithm python version</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">strStr</span>(<span class="params">self, haystack: str, needle: str</span>) -&gt; int:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">preprocess</span>(<span class="params">pattern: str</span>) -&gt; dict:</span></span><br><span class="line">            <span class="comment"># r[i] is the dup str len of pattern[0:i+1]</span></span><br><span class="line">            r = dict()</span><br><span class="line">            r[<span class="number">0</span>] = <span class="number">0</span></span><br><span class="line">            dup_len = <span class="number">0</span></span><br><span class="line">            ptr = <span class="number">1</span></span><br><span class="line">            length = len(pattern)</span><br><span class="line">            <span class="keyword">while</span> ptr &lt; length:</span><br><span class="line">                <span class="keyword">if</span> pattern[dup_len] == pattern[ptr]:</span><br><span class="line">                    dup_len += <span class="number">1</span></span><br><span class="line">                    r[ptr] = dup_len</span><br><span class="line">                    ptr += <span class="number">1</span></span><br><span class="line">                <span class="keyword">elif</span> dup_len == <span class="number">0</span>:</span><br><span class="line">                    r[ptr] = <span class="number">0</span></span><br><span class="line">                    ptr += <span class="number">1</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    dup_len = r[dup_len<span class="number">-1</span>]</span><br><span class="line">            <span class="keyword">return</span> r</span><br><span class="line">        r = preprocess(needle)</span><br><span class="line">        i = <span class="number">0</span></span><br><span class="line">        j = <span class="number">0</span></span><br><span class="line">        m = len(haystack)</span><br><span class="line">        n = len(needle)</span><br><span class="line">        <span class="keyword">if</span> n == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> i &lt; m:</span><br><span class="line">            <span class="keyword">if</span> j == n:</span><br><span class="line">                <span class="keyword">return</span> i - j</span><br><span class="line">            <span class="keyword">if</span> haystack[i] == needle[j]:</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">                j += <span class="number">1</span></span><br><span class="line">            <span class="keyword">elif</span> j == <span class="number">0</span>:</span><br><span class="line">                i += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                j = r[j - <span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> j == n:</span><br><span class="line">            <span class="keyword">return</span> i - j</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/14/27.%20Remove%20Element/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/14/27.%20Remove%20Element/" class="post-title-link" itemprop="url">27. Remove Element</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-14T00:00:00+08:00">2020-08-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="remove-element">27. Remove Element</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/remove-element/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given an array <em>nums</em> and a value <em>val</em>, remove all instances of that value <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/In-place_algorithm"><strong>in-place</strong></a> and return the new length.</p>
-<p>Do not allocate extra space for another array, you must do this by <strong>modifying the input array <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/In-place_algorithm">in-place</a></strong> with O(1) extra memory.</p>
-<p>The order of elements can be changed. It doesn't matter what you leave beyond the new length.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">removeElement</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize, <span class="keyword">int</span> val)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>Nothing to say.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">removeElement</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (cur &lt; numsSize) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[cur] == val) &#123;</span><br><span class="line">            numsSize--;</span><br><span class="line">            nums[cur] = nums[numsSize];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            cur++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> cur;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/08/14/26.%20Remove%20Duplicates%20from%20Sorted%20Array/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/08/14/26.%20Remove%20Duplicates%20from%20Sorted%20Array/" class="post-title-link" itemprop="url">26. Remove Duplicates from Sorted Array</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-08-14 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-14T00:00:00+08:00">2020-08-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-09-27 10:35:17" itemprop="dateModified" datetime="2020-09-27T10:35:17+08:00">2020-09-27</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="remove-duplicates-from-sorted-array">26. Remove Duplicates from Sorted Array</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given a sorted array <em>nums</em>, remove the duplicates <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/In-place_algorithm"><strong>in-place</strong></a> such that each element appear only <em>once</em> and return the new length.</p>
-<p>Do not allocate extra space for another array, you must do this by <strong>modifying the input array <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/In-place_algorithm">in-place</a></strong> with O(1) extra memory.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">removeDuplicates</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>Nothing to say.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">removeDuplicates</span><span class="params">(<span class="keyword">int</span>* nums, <span class="keyword">int</span> numsSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (numsSize == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> r = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; numsSize; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[i] &gt; nums[i - <span class="number">1</span>]) &#123;</span><br><span class="line">            nums[r] = nums[i];</span><br><span class="line">            r++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1123,7 +1153,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">71</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
