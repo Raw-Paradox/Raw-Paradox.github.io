@@ -166,6 +166,295 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/06/2020-10-5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/06/2020-10-5/" class="post-title-link" itemprop="url">2020-10-5</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-10-06 08:32:30 / Modified: 08:49:06" itemprop="dateCreated datePublished" datetime="2020-10-06T08:32:30+08:00">2020-10-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="上午下午">上午&amp;下午</h4>
+<ul>
+<li><p>看10.4晚上那道算法题<code>218.The Skyline Problem</code></p>
+<ul>
+<li>“扫线法”</li>
+<li>c++ 中的 priority_queue 和 multiset 结构, multiset内部实现可用红黑树</li>
+</ul></li>
+</ul>
+<h4 id="晚上">晚上</h4>
+<ul>
+<li><p>每日一题307.Range Sum Query - Mutable</p>
+<p>这道题是用的我没听说的数据结构 — Binary Index Tree, 利用这个结构, 可以在<code>O(n)</code>时间内完成构造, <code>O(log n)</code>时间内完成查询前缀和和更新操作</p></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/05/307-Range-Sum-Query-Mutable/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/05/307-Range-Sum-Query-Mutable/" class="post-title-link" itemprop="url">307.Range Sum Query - Mutable</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-10-05 20:58:15" itemprop="dateCreated datePublished" datetime="2020-10-05T20:58:15+08:00">2020-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-06 08:51:50" itemprop="dateModified" datetime="2020-10-06T08:51:50+08:00">2020-10-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/Binary-Index-Tree/" itemprop="url" rel="index"><span itemprop="name">Binary Index Tree</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="range-sum-query---mutable">307.Range Sum Query - Mutable</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/range-sum-query-mutable/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given an integer array <em>nums</em>, find the sum of the elements between indices <em>i</em> and <em>j</em> (<em>i</em> ≤ <em>j</em>), inclusive.</p>
+<p>The <em>update(i, val)</em> function modifies <em>nums</em> by updating the element at index <em>i</em> to <em>val</em>.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>This problem is all about <code>Binary Index Tree</code>. So I will introduce the <code>Binary Index Tree</code> here:</p>
+<ol type="1">
+<li><p>What is Binary Index Tree?</p>
+<p>First define macro <code>lsb</code> return the least significant bit of given parameter.</p>
+<p>Given a array called <code>nums</code>, we construct a new array <code>bit</code> which length equal to <code>nums</code>, <code>bit[i]</code> indicates the sum of <code>nums[i-lsb(i)+1:i+1]</code>. The <code>bit</code> means Binary Index Tree.</p></li>
+<li><p>Why Binary Index Tree?</p>
+<p>As you see in this problem, BIT provides <code>O(log n)</code> time complexity for get sum of range in <code>nums</code> and every time you update the <code>nums</code>. So when you want to query range sum for a mutable array, BIT is one of the best choice!</p></li>
+</ol>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NumArray</span> &#123;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> lsb(n) (n &amp; (-n))  <span class="comment">// least significant bit</span></span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nums;</span><br><span class="line">    <span class="comment">// bit[i] indicates sum of nums[i-lsb(i)+1:i+1]</span></span><br><span class="line">    <span class="keyword">int</span>* bit;  <span class="comment">// binary index tree</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    NumArray(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>-&gt;nums = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(nums.begin(), nums.end());</span><br><span class="line">            bit = (<span class="keyword">int</span>*)<span class="built_in">calloc</span>(nums.size(), <span class="keyword">sizeof</span>(<span class="keyword">int</span>));</span><br><span class="line">            bit[<span class="number">0</span>] = nums[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; nums.size(); i++) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> j = i - lsb(i) + <span class="number">1</span>; j &lt;= i; j++) &#123;</span><br><span class="line">                    bit[i] += nums[j];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> delta = val - nums[i];</span><br><span class="line">        nums[i] = val;</span><br><span class="line">        <span class="keyword">if</span> (i &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">while</span> (i &lt; nums.size()) &#123;</span><br><span class="line">                bit[i] += delta;</span><br><span class="line">                i += lsb(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            bit[<span class="number">0</span>] = val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">sumRange</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (j == <span class="number">0</span>) &#123;</span><br><span class="line">                sum += bit[<span class="number">0</span>];</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            sum += bit[j];</span><br><span class="line">            j -= lsb(j);</span><br><span class="line">        &#125;</span><br><span class="line">        i--;</span><br><span class="line">        <span class="keyword">if</span> (i &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">                    sum -= bit[<span class="number">0</span>];</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                sum -= bit[i];</span><br><span class="line">                i -= lsb(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/05/218-The-Skyline-Problem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/05/218-The-Skyline-Problem/" class="post-title-link" itemprop="url">218.The Skyline Problem</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-10-05 17:04:30" itemprop="dateCreated datePublished" datetime="2020-10-05T17:04:30+08:00">2020-10-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-10-06 08:52:03" itemprop="dateModified" datetime="2020-10-06T08:52:03+08:00">2020-10-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/leetcode/Binary-Index-Tree/" itemprop="url" rel="index"><span itemprop="name">Binary Index Tree</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="the-skyline-problem">218.The Skyline Problem</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/the-skyline-problem/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>A city's skyline is the outer contour of the silhouette formed by all the buildings in that city when viewed from a distance. Now suppose you are <strong>given the locations and height of all the buildings</strong> as shown on a cityscape photo (Figure A), write a program to <strong>output the skyline</strong> formed by these buildings collectively (Figure B).</p>
+<p><img src="https://assets.leetcode.com/uploads/2018/10/22/skyline1.png" width="40%"></p>
+<p><img src="https://assets.leetcode.com/uploads/2018/10/22/skyline2.png" width="40%"></p>
+<p>The geometric information of each building is represented by a triplet of integers <code>[Li, Ri, Hi]</code>, where <code>Li</code> and <code>Ri</code> are the x coordinates of the left and right edge of the ith building, respectively, and <code>Hi</code> is its height. It is guaranteed that <code>0 ≤ Li, Ri ≤ INT_MAX</code>, <code>0 &lt; Hi ≤ INT_MAX</code>, and <code>Ri - Li &gt; 0</code>. You may assume all buildings are perfect rectangles grounded on an absolutely flat surface at height 0.</p>
+<p>For instance, the dimensions of all buildings in Figure A are recorded as: <code>[ [2 9 10], [3 7 15], [5 12 12], [15 20 10], [19 24 8] ]</code>.</p>
+<p>The output is a list of "<strong>key points</strong>" (red dots in Figure B) in the format of <code>[ [x1,y1], [x2, y2], [x3, y3], ... ]</code> that uniquely defines a skyline. <strong>A key point is the left endpoint of a horizontal line segment</strong>. Note that the last key point, where the rightmost building ends, is merely used to mark the termination of the skyline, and always has zero height. Also, the ground in between any two adjacent buildings should be considered part of the skyline contour.</p>
+<p>For instance, the skyline in Figure B should be represented as:<code>[ [2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0] ]</code>.</p>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>The number of buildings in any input list is guaranteed to be in the range <code>[0, 10000]</code>.</li>
+<li>The input list is already sorted in ascending order by the left x position <code>Li</code>.</li>
+<li>The output list must be sorted by the x position.</li>
+<li>There must be no consecutive horizontal lines of equal height in the output skyline. For instance, <code>[...[2 3], [4 5], [7 5], [11 5], [12 7]...]</code> is not acceptable; the three lines of height 5 should be merged into one in the final output as such: <code>[...[2 3], [4 5], [12 7], ...]</code></li>
+</ul>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">getSkyline</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; buildings)</span></span>;</span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<p>First I need to introduce the <code>multiset</code> in c++:</p>
+<ul>
+<li><code>multiset</code> is a stl container that can be implemented in <code>red-black tree</code> — a kind of <code>self-balance tree</code></li>
+<li><code>multiset</code> offers <code>O(log n)</code> time complexity insert, find, erase operations and some iterator api such as rbegin(Return the reverse iterator to reverse beginning), crbegin(Return const_reverse_iterator to reverse beginning)</li>
+</ul>
+<p>So now we have the powerful <code>multiset</code> to help us solve this problem. Below are the concrete procedures to solve that:</p>
+<ol type="1">
+<li>The data is about rectangle, so we need firstly convert the [l_coord, r_coord, h] triplet to [l_coord, h, LEFT], [r_coord, h, RIGHT], which indicates the begin and end of the rectangle.</li>
+<li>Sort the array we obtain in the first step, notice that when two point coord are equal, we sort it in h descending order when these points are LEFT and h ascending order when these points are RIGHT. This step is necessary because we need guarantee the right edge is behind the left edge and avoid the incorrect change of max height.</li>
+<li>Insert these points'h to multiset one-by-one, and monitors the max value in multiset, when it changes, we need to push the corresponding points to the result vector.</li>
+</ol>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">getSkyline</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; buildings)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; r;</span><br><span class="line">    <span class="keyword">if</span> (buildings.size() &lt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">point</span> &#123;</span></span><br><span class="line">        <span class="keyword">int</span> x;</span><br><span class="line">        <span class="keyword">int</span> h;</span><br><span class="line">        <span class="keyword">bool</span> type;  <span class="comment">// 1 for left and 0 for right</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">vector</span>&lt;point&gt; <span class="built_in">array</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; buildings.size(); i++) &#123;</span><br><span class="line">        <span class="built_in">array</span>.push_back(&#123;buildings[i][<span class="number">0</span>], buildings[i][<span class="number">2</span>], <span class="number">1</span>&#125;);</span><br><span class="line">        <span class="built_in">array</span>.push_back(&#123;buildings[i][<span class="number">1</span>], buildings[i][<span class="number">2</span>], <span class="number">0</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    sort(<span class="built_in">array</span>.begin(), <span class="built_in">array</span>.end(), [](point a, point b) &#123;</span><br><span class="line">        <span class="keyword">if</span> (a.x != b.x) &#123;</span><br><span class="line">            <span class="keyword">return</span> a.x &lt; b.x;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (a.type &amp;&amp; b.type) &#123;</span><br><span class="line">            <span class="keyword">return</span> a.h &gt; b.h;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!a.type &amp;&amp; !b.type) &#123;</span><br><span class="line">            <span class="keyword">return</span> a.h &lt; b.h;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> a.type;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">priority_queue</span>&lt;<span class="keyword">int</span>&gt; q;</span><br><span class="line">    q.push(<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">    v.push_back(<span class="number">0</span>);</span><br><span class="line">    v.push_back(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">int</span> prev = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">multiset</span>&lt;<span class="keyword">int</span>&gt; <span class="built_in">set</span>;</span><br><span class="line">    <span class="built_in">set</span>.insert(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span>&amp; e : <span class="built_in">array</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (e.type) &#123;</span><br><span class="line">            <span class="built_in">set</span>.insert(e.h);</span><br><span class="line">            <span class="keyword">if</span> (prev != *<span class="built_in">set</span>.rbegin()) &#123;</span><br><span class="line">                v[<span class="number">0</span>] = e.x;</span><br><span class="line">                v[<span class="number">1</span>] = e.h;</span><br><span class="line">                r.push_back(v);</span><br><span class="line">                prev = *<span class="built_in">set</span>.rbegin();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">set</span>.erase(<span class="built_in">set</span>.find(e.h));</span><br><span class="line">            <span class="keyword">if</span> (prev != *<span class="built_in">set</span>.rbegin()) &#123;</span><br><span class="line">                v[<span class="number">0</span>] = e.x;</span><br><span class="line">                v[<span class="number">1</span>] = *<span class="built_in">set</span>.rbegin();</span><br><span class="line">                r.push_back(v);</span><br><span class="line">                prev = *<span class="built_in">set</span>.rbegin();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/02/51-N-Queens/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -742,260 +1031,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/28/2020-9-28/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/28/2020-9-28/" class="post-title-link" itemprop="url">2020-9-28</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-09-28 19:58:42 / Modified: 20:10:37" itemprop="dateCreated datePublished" datetime="2020-09-28T19:58:42+08:00">2020-09-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/diary/" itemprop="url" rel="index"><span itemprop="name">diary</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="上午">上午</h4>
-<ul>
-<li><p>做了一道攻防世界上的pwn题</p>
-<p>通过gets直接覆盖掉seed的值, 从而控制随机数的生成</p></li>
-<li><p>装了ida pro</p>
-<p>终于能看伪码了</p></li>
-<li><p>第二节的偏微分, 日常划水</p>
-<p>一阶偏微分方程基本不考, 等二阶那几个特殊的了</p></li>
-</ul>
-<h4 id="下午">下午</h4>
-<ul>
-<li><p>探索了下pwntools以及pwn题中的一些小细节</p>
-<ul>
-<li>通过ncat命令把elf部署到自己vps上时记得该文件有把fd为0,1,2的setbuf为0</li>
-<li>目标程序通过scanf等读数的时候记得发送字符串过去, 别直接p32(num)</li>
-</ul></li>
-<li><p>leetcode每日一题</p>
-<p>backtracking算法递归暴力解数独</p></li>
-</ul>
-<h4 id="晚上">晚上</h4>
-<ul>
-<li><p>读了一个小时计网</p>
-<p>TCP协议seq,ack机制, 连接管理机制</p></li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/28/37-Sudoku-Solver/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/28/37-Sudoku-Solver/" class="post-title-link" itemprop="url">37.Sudoku Solver</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-09-28 16:12:46 / Modified: 16:50:43" itemprop="dateCreated datePublished" datetime="2020-09-28T16:12:46+08:00">2020-09-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="sudoku-solver">37.Sudoku Solver</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/sudoku-solver/description/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Write a program to solve a Sudoku puzzle by filling the empty cells.</p>
-<p>Empty cells are indicated by the character '.'.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">solveSudoku</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; board)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>Use two helper function <code>possibleVal</code> and <code>helper</code>:</p>
-<ul>
-<li><code>possibleVal</code> to get all possible value of given index</li>
-<li><code>helper</code> to use backtracking algorithm find the correct solution recursively</li>
-</ul>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt; <span class="title">possibleVal</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; board, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> <span class="built_in">set</span>[] = &#123;<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;6&#x27;</span>, <span class="string">&#x27;7&#x27;</span>, <span class="string">&#x27;8&#x27;</span>, <span class="string">&#x27;9&#x27;</span>&#125;;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt; v = <span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;(<span class="built_in">set</span>, <span class="built_in">set</span> + <span class="number">9</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; <span class="number">9</span>; k++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (board[i][k] != <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            v.erase(remove(v.begin(), v.end(), board[i][k]), v.end());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (board[k][j] != <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            v.erase(remove(v.begin(), v.end(), board[k][j]), v.end());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (board[i / <span class="number">3</span> * <span class="number">3</span> + k / <span class="number">3</span>][j / <span class="number">3</span> * <span class="number">3</span> + k % <span class="number">3</span>] != <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            v.erase(remove(v.begin(), v.end(), board[i / <span class="number">3</span> * <span class="number">3</span> + k / <span class="number">3</span>][j / <span class="number">3</span> * <span class="number">3</span> + k % <span class="number">3</span>]), v.end());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> v;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">helper</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; board, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i_nxt, j_nxt;</span><br><span class="line">    <span class="keyword">if</span> (j == <span class="number">8</span>) &#123;</span><br><span class="line">        i_nxt = i + <span class="number">1</span>;</span><br><span class="line">        j_nxt = <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        i_nxt = i;</span><br><span class="line">        j_nxt = j + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (board[i][j] != <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">8</span> &amp;&amp; j == <span class="number">8</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> helper(board, i_nxt, j_nxt);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt; v = possibleVal(board, i, j);</span><br><span class="line">    <span class="keyword">if</span> (v.size() == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">8</span> &amp;&amp; j == <span class="number">8</span>) &#123;</span><br><span class="line">        board[i][j] = v[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; v.size(); k++) &#123;</span><br><span class="line">        board[i][j] = v[k];</span><br><span class="line">        <span class="keyword">if</span> (helper(board, i_nxt, j_nxt)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    board[i][j] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">solveSudoku</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">char</span>&gt;&gt;&amp; board)</span> </span>&#123;</span><br><span class="line">    helper(board, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/09/27/54-Spiral-Matrix/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/27/54-Spiral-Matrix/" class="post-title-link" itemprop="url">54.Spiral Matrix</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-09-27 14:42:27 / Modified: 14:43:55" itemprop="dateCreated datePublished" datetime="2020-09-27T14:42:27+08:00">2020-09-27</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="spiral-matrix">54.Spiral Matrix</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/spiral-matrix/description/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Given a matrix of m x n elements (m rows, n columns), return all elements of the matrix in spiral order.</p>
-<h5 id="signature">Signature</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">spiralOrder</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix)</span></span>;</span><br></pre></td></tr></table></figure>
-<h5 id="analysis">Analysis</h5>
-<p>So simple.</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">spiralOrder</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;&amp; matrix)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; r;</span><br><span class="line">    <span class="keyword">if</span> (matrix.size() == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> m = matrix.size();</span><br><span class="line">    <span class="keyword">int</span> n = matrix[<span class="number">0</span>].size();</span><br><span class="line">    <span class="keyword">int</span> count = min(m, n) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i; j &lt; n - i; j++) &#123;</span><br><span class="line">            r.push_back(matrix[i][j]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; m - i - <span class="number">1</span>; j++) &#123;</span><br><span class="line">            r.push_back(matrix[j][n - i - <span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = n - i - <span class="number">1</span>; j &gt;= i; j--) &#123;</span><br><span class="line">            r.push_back(matrix[m - i - <span class="number">1</span>][j]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = m - i - <span class="number">2</span>; j &gt;= i + <span class="number">1</span>; j--) &#123;</span><br><span class="line">            r.push_back(matrix[j][i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((min(m, n) &amp; <span class="number">1</span>) == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i; j &lt; n - i; j++) &#123;</span><br><span class="line">            r.push_back(matrix[i][j]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; m - i - <span class="number">1</span>; j++) &#123;</span><br><span class="line">            r.push_back(matrix[j][n - i - <span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (i != (m - i - <span class="number">1</span>)) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = n - i - <span class="number">1</span>; j &gt;= i; j--) &#123;</span><br><span class="line">                r.push_back(matrix[m - i - <span class="number">1</span>][j]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ((n - i - <span class="number">1</span>) != i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = m - i - <span class="number">2</span>; j &gt;= i + <span class="number">1</span>; j--) &#123;</span><br><span class="line">                r.push_back(matrix[j][i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1065,7 +1100,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-count">88</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
