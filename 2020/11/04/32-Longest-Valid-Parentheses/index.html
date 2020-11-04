@@ -20,19 +20,20 @@
     var CONFIG = {"hostname":"123.57.173.58","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="这篇文章是深度剖析下binary search用, 近几天写算法发现自己对最基础的binary search了解还是不够深, 被各种区间边界折磨的痛苦不堪, 故理理思路. Pseudocode First I will give the pseudocode of the binary search and organize the basic idea 12345678910111213low">
+  <meta name="description" content="32.Longest Valid Parentheses  source link  Description Given a string containing just the characters &#39;(&#39; and &#39;)&#39;, find the length of the longest valid (well-formed) parentheses substring. Signature 1i">
 <meta property="og:type" content="article">
-<meta property="og:title" content="binary search">
-<meta property="og:url" content="http://123.57.173.58/2020/10/15/binary-search/index.html">
+<meta property="og:title" content="32.Longest Valid Parentheses">
+<meta property="og:url" content="http://123.57.173.58/2020/11/04/32-Longest-Valid-Parentheses/index.html">
 <meta property="og:site_name" content="Paradox&#39;s Blog">
-<meta property="og:description" content="这篇文章是深度剖析下binary search用, 近几天写算法发现自己对最基础的binary search了解还是不够深, 被各种区间边界折磨的痛苦不堪, 故理理思路. Pseudocode First I will give the pseudocode of the binary search and organize the basic idea 12345678910111213low">
+<meta property="og:description" content="32.Longest Valid Parentheses  source link  Description Given a string containing just the characters &#39;(&#39; and &#39;)&#39;, find the length of the longest valid (well-formed) parentheses substring. Signature 1i">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-10-15T00:33:52.000Z">
-<meta property="article:modified_time" content="2020-10-15T01:42:34.716Z">
+<meta property="article:published_time" content="2020-11-04T08:30:30.000Z">
+<meta property="article:modified_time" content="2020-11-04T08:50:12.265Z">
 <meta property="article:author" content="Paradox">
+<meta property="article:tag" content="Solution">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://123.57.173.58/2020/10/15/binary-search/">
+<link rel="canonical" href="http://123.57.173.58/2020/11/04/32-Longest-Valid-Parentheses/">
 
 
 <script id="page-configurations">
@@ -45,7 +46,7 @@
   };
 </script>
 
-  <title>binary search | Paradox's Blog</title>
+  <title>32.Longest Valid Parentheses | Paradox's Blog</title>
   
 
 
@@ -169,7 +170,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/10/15/binary-search/">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/11/04/32-Longest-Valid-Parentheses/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -182,7 +183,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          binary search
+          32.Longest Valid Parentheses
         </h1>
 
         <div class="post-meta">
@@ -193,7 +194,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-10-15 08:33:52 / Modified: 09:42:34" itemprop="dateCreated datePublished" datetime="2020-10-15T08:33:52+08:00">2020-10-15</time>
+              <time title="Created: 2020-11-04 16:30:30 / Modified: 16:50:12" itemprop="dateCreated datePublished" datetime="2020-11-04T16:30:30+08:00">2020-11-04</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -201,7 +202,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/algorithm/" itemprop="url" rel="index"><span itemprop="name">algorithm</span></a>
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
                 </span>
             </span>
 
@@ -216,17 +217,32 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>这篇文章是深度剖析下binary search用, 近几天写算法发现自己对最基础的binary search了解还是不够深, 被各种区间边界折磨的痛苦不堪, 故理理思路.</p>
-<h5 id="pseudocode">Pseudocode</h5>
-<p>First I will give the pseudocode of the binary search and organize the basic idea</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">low = <span class="number">0</span>;</span><br><span class="line">high = arr.size();</span><br><span class="line"><span class="keyword">while</span>(low + <span class="number">1</span> &lt; high)&#123;</span><br><span class="line">    mid = (low + high)/<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(val &lt; arr[mid])&#123;</span><br><span class="line">    		high = mid;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(val == arr[mid])&#123;</span><br><span class="line">    		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    		low = mid + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
-<p>Above is the most common and standard <em>binary search</em>, but the problem is — we usually hope that search function give some extra info instead of just true or false, such as the index of the specific val even if val isn’t in the given arr.</p>
-<h5 id="index-index">Index? Index!</h5>
-<p>So to answer that question we need to go back to the pseudocode, note that in every loop subroutine, we search <code>val</code> in <code>arr[low:high]</code>(not include high) ,cmp the specific <code>val</code> with <code>arr[mid]</code> and continue search in subarray <code>arr[low:mid]</code> or <code>arr[mid+1:high]</code> if arr[mid]!=val until condition <em>low+1&lt;high</em> not handle — i.e. the subarray just contain one element <code>arr[low]</code>.</p>
-<p>Now we do some modify to the above pseudocode so that get the <code>low</code></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">low = <span class="number">0</span>;</span><br><span class="line">high = arr.size();</span><br><span class="line"><span class="keyword">while</span>(low + <span class="number">1</span> &lt; high)&#123;</span><br><span class="line">    mid = (low + high)/<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(val &lt; arr[mid])&#123;</span><br><span class="line">    		high = mid;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    		low = mid;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> low + <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-<p>It’s obviously that we only update <code>low</code> to <code>mid</code> when <code>val</code> greater than or equal to <code>arr[mid]</code>, this is quite important because it guarantees <code>low</code> is still move forward even <code>arr[low]==val</code> and <code>arr[low]</code> is always less than or equal to <code>val</code>! So the return value is the index of the first element strictly greater than <code>val</code>. But if <code>arr[0]&gt;val</code>, the expected return value should be 0, but the retuen value is 1, so we need to add below segment to the start of function:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(val &lt; arr[<span class="number">0</span>])&#123;</span><br><span class="line">  	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h3 id="longest-valid-parentheses">32.Longest Valid Parentheses</h3>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/longest-valid-parentheses/description/">source link</a></p>
+</blockquote>
+<h5 id="description">Description</h5>
+<p>Given a string containing just the characters <code>'('</code> and <code>')'</code>, find the length of the longest valid (well-formed) parentheses substring.</p>
+<h5 id="signature">Signature</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(<span class="keyword">char</span>* s)</span></span></span><br></pre></td></tr></table></figure>
+<h5 id="analysis">Analysis</h5>
+<ol type="1">
+<li>在对数组进行操作的时候要时刻注意越界问题, 特别在循环中必须保证在access数组时, 在界内</li>
+<li>在创建栈的时候一开始脑子抽了感觉能把长度设置为n/2+1省点空间… 被“(((((()”这个testcase教做人</li>
+</ol>
+<p>接下来就是main idea了:</p>
+<ol type="1">
+<li>首先我们创建一个与字符串等长且初始为0的数组, 这个数组第i个元素只有在字符串这一位是’)’时可能非0, 代表了从这个’)’往前看最长连续的有效括号长度</li>
+<li>在遍历的时候, 每当遇到’(’, 我们就把他的index压入栈中</li>
+<li>如果遇到了’)’, 这意味着要consume一个’(’, 我们检查栈中是否为空, 如果是空的话就什么都不做(毕竟初始已经把长度设置为0了)</li>
+<li>如果此时栈非空就consume一个’(’, 检查他前一位是否非0, 如果是的话就加上’(’前一位在array中的值</li>
+<li>再加上这个’)’前一位在array中的值, 这对应了嵌套的情况, 即连续出现多个’)’</li>
+<li>上面的步骤很大程度上都依赖了array初始值都为0, 这样就可以不用保留其他信息来随便加(如果是0的话无影响)</li>
+<li>最后把array中最大元素返回就可了</li>
+</ol>
+<p>感觉dp就是要充分利用之前的信息, 其实好像所有算法的目的都是要“customized”, 为特定的问题使用尽可能少的信息, 排除尽可能多的冗余信息来给出解</p>
+<h5 id="solution">Solution</h5>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">longestValidParentheses</span><span class="params">(<span class="keyword">char</span>* s)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (*s == <span class="string">&#x27;\0&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// guaranteed that start with first &#x27;(&#x27;</span></span><br><span class="line">    <span class="keyword">int</span> n = <span class="built_in">strlen</span>(s);</span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">array</span>[n];</span><br><span class="line">    <span class="built_in">memset</span>(<span class="built_in">array</span>, <span class="number">0</span>, <span class="keyword">sizeof</span>(<span class="built_in">array</span>));</span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (i &lt; n &amp;&amp; s[i] != <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// core part</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">stack</span>[n];</span><br><span class="line">    <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (; i &lt; n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (s[i] == <span class="string">&#x27;(&#x27;</span>) &#123;</span><br><span class="line">            <span class="built_in">stack</span>[cur++] = i;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cur &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> index = <span class="built_in">stack</span>[--cur];</span><br><span class="line">            <span class="built_in">array</span>[i] = <span class="number">2</span> + (index &gt; <span class="number">0</span> ? <span class="built_in">array</span>[index - <span class="number">1</span>] : <span class="number">0</span>) + <span class="built_in">array</span>[i - <span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// compute the max value</span></span><br><span class="line">    <span class="keyword">int</span> max = <span class="built_in">array</span>[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; n; j++) &#123;</span><br><span class="line">        max = max &gt;= <span class="built_in">array</span>[j] ? max : <span class="built_in">array</span>[j];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> max;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -235,6 +251,9 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Solution/" rel="tag"># Solution</a>
+          </div>
 
         
 
@@ -242,13 +261,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/15/2020-10-14/" rel="prev" title="Wed Oct 14 2020 08:00:00 GMT+0800 (China Standard Time)">
-      <i class="fa fa-chevron-left"></i> Wed Oct 14 2020 08:00:00 GMT+0800 (China Standard Time)
+    <a href="/2020/11/03/295-Find-Median-from-Data-Stream/" rel="prev" title="295.Find Median from Data Stream">
+      <i class="fa fa-chevron-left"></i> 295.Find Median from Data Stream
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/10/15/493-Reverse-Pairs/" rel="next" title="493.Reverse Pairs">
-      493.Reverse Pairs <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -307,7 +323,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#pseudocode"><span class="nav-number">1.</span> <span class="nav-text">Pseudocode</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#index-index"><span class="nav-number">2.</span> <span class="nav-text">Index? Index!</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#longest-valid-parentheses"><span class="nav-number">1.</span> <span class="nav-text">32.Longest Valid Parentheses</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#description"><span class="nav-number">1.0.1.</span> <span class="nav-text">Description</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#signature"><span class="nav-number">1.0.2.</span> <span class="nav-text">Signature</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#analysis"><span class="nav-number">1.0.3.</span> <span class="nav-text">Analysis</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#solution"><span class="nav-number">1.0.4.</span> <span class="nav-text">Solution</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
