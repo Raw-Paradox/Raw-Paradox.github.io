@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"123.57.173.58","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Compose! (1)  知之为知之, 不知为不知, 是知也 纸上得来终觉浅, 绝知此事要躬行  compose的alpha版出来也有一段时间了, 最近想写一个安卓项目练练手(老不写脑子生锈了都), 既然compose出了, 那自然就不再写那堆恶心的xml了! 学习compose走起 Intro Compose的设计逻辑和原生安卓View那一套是完全不同的, 在原生中我们一般使用findView">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Compose!(1)">
+<meta property="og:url" content="http://123.57.173.58/2020/11/25/Compose-1/index.html">
+<meta property="og:site_name" content="Paradox&#39;s Blog">
+<meta property="og:description" content="Compose! (1)  知之为知之, 不知为不知, 是知也 纸上得来终觉浅, 绝知此事要躬行  compose的alpha版出来也有一段时间了, 最近想写一个安卓项目练练手(老不写脑子生锈了都), 既然compose出了, 那自然就不再写那堆恶心的xml了! 学习compose走起 Intro Compose的设计逻辑和原生安卓View那一套是完全不同的, 在原生中我们一般使用findView">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://developer.android.com/images/jetpack/compose/state-view-model-unidirectional-flow.png">
+<meta property="article:published_time" content="2020-11-25T01:19:38.000Z">
+<meta property="article:modified_time" content="2020-11-28T02:06:37.044Z">
+<meta property="article:author" content="Paradox">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://developer.android.com/images/jetpack/compose/state-view-model-unidirectional-flow.png">
+
+<link rel="canonical" href="http://123.57.173.58/2020/11/25/Compose-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Compose!(1) | Paradox's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Paradox's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/11/25/Compose-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Compose!(1)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-11-25 09:19:38" itemprop="dateCreated datePublished" datetime="2020-11-25T09:19:38+08:00">2020-11-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-28 10:06:37" itemprop="dateModified" datetime="2020-11-28T10:06:37+08:00">2020-11-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/compose/" itemprop="url" rel="index"><span itemprop="name">compose</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="compose-1">Compose! (1)</h2>
+<blockquote>
+<p><em>知之为知之, 不知为不知, 是知也</em></p>
+<p>纸上得来终觉浅, 绝知此事要躬行</p>
+</blockquote>
+<p>compose的alpha版出来也有一段时间了, 最近想写一个安卓项目练练手(老不写脑子生锈了都), 既然compose出了, 那自然就不再写那堆恶心的xml了! 学习compose走起</p>
+<h4 id="intro">Intro</h4>
+<p>Compose的设计逻辑和原生安卓View那一套是<strong>完全不同</strong>的, 在原生中我们一般使用findViewById()来获取我们需要的View的对象, 每个View是会维护一个internal state的, 我们可以说是“面向View对象”的编程</p>
+<p>但在compose中, view是relative-stateless的, 他通过observe State类的变量来达到更新UI的目的, 这一步在compose中叫做recompose, 当事件发生状态改变时会尽可能少的全部重新绘制相关组件, 这种思想其实是非常适合与ViewModel进行协作的. 我们可以在widget的监听事件中更新ViewModel中的livedata, UI本身使用拓展函数LiveData::observeAsState得到的State来绘制自己, 这样在event发生后相关的widget会recompose</p>
+<p><img src="https://developer.android.com/images/jetpack/compose/state-view-model-unidirectional-flow.png" style="zoom:40%;" /></p>
+<p>如上图所示, 这就是unidirectional pattern</p>
+<h4 id="example">Example</h4>
+<p>我们考虑一个简单的仅包含一个在button上显示其被点击次数的activity</p>
+<p>我们考虑一个使用ViewModel的情况(在这个情形下是不必要使用viewModel的, 因为对数据的更新非阻塞直接在主线程进行, 传统方式直接在MainActivity里面维护一个count:Int就可以, compose方式在compose fun里面自己实现一个MutableState代理count变量就可以)</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyViewModel</span>: <span class="type">ViewModel</span></span>()&#123;</span><br><span class="line">    <span class="keyword">val</span> count = MutableLiveData(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在传统方式中,</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> : <span class="type">AppCompatActivity</span></span>() &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">lateinit</span> <span class="keyword">var</span> btn: Button</span><br><span class="line">    <span class="keyword">val</span> viewModel = MyViewModel()</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        viewModel.count.observe(<span class="keyword">this</span>)&#123;</span><br><span class="line">            btn.text = <span class="string">&quot;I&#x27;ve been clicked <span class="variable">$it</span> times&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">        btn = findViewById(R.id.btn).apply&#123;</span><br><span class="line">            text = <span class="string">&quot;I&#x27;ve been clicked 0 times&quot;</span></span><br><span class="line">            setOnClickListener&#123;</span><br><span class="line">                <span class="keyword">this</span><span class="symbol">@MainActivity</span>.viewModel.count.value = <span class="keyword">this</span><span class="symbol">@MainActivity</span>.viewModel.count.value?.plus(<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们必须持有要更新的UI widget的对象, 并显式更新他们</p>
+<p>在compose中,</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Compose</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">ClickCounter</span><span class="params">(viewModel: <span class="type">MyViewModel</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> count <span class="keyword">by</span> viewModel.count.observeAsState(<span class="number">0</span>)</span><br><span class="line">    Button(onClick = &#123;viewModel.count.value?.plus(<span class="number">1</span>)&#125;)&#123;</span><br><span class="line">        Text(<span class="string">&quot;I&#x27;ve been clicked <span class="variable">$count</span> times&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到我们的数据和UI是完全分离的, 我们把数据包装成了compose-observable的State对象, 在liveData中数据更新时, 所有observe它的compose fun都会自动的recompose, 我们无须再去显式的更新所有依赖于此数据的widget.</p>
+<h4 id="scope-fun">Scope fun</h4>
+<h5 id="context-object">Context object</h5>
+<ul>
+<li><code>run</code>, <code>with</code>, <code>apply</code>的context refer为<em>this</em>, 因为其参数为<code>T.() -&gt; R</code> 形式, 所以能直接用this做引用</li>
+<li><code>let</code>, <code>also</code> 的context refer为<em>it</em>, 其参数为<code>(T) -&gt; R</code>, 只不过在函数内部调用了<code>block(this)</code></li>
+</ul>
+<h5 id="return-value">Return value</h5>
+<ul>
+<li><code>apply</code> and <code>also</code> return the context object.</li>
+<li><code>let</code>, <code>run</code>, and <code>with</code> return the lambda result.</li>
+</ul>
+<h5 id="facts">Facts</h5>
+<ul>
+<li><p>T.run{ } 和 with(T){ }等价</p></li>
+<li><p>let相比于run和with区别在于它的参数block是(T)-&gt;R中可以执行T外部语句</p></li>
+<li><p>apply和also区别也在于also的参数block可以执行T外部语句</p></li>
+<li><p>这个是一个experimental的功能, 用于告知编译器<code>block</code>只会被执行一次, 如果不加这个contract, block内部不可以对外部的val变量赋值 <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">contract &#123;</span><br><span class="line">    callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+<h4 id="state-hoisting">State Hoisting</h4>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Composable</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">MyScreenContent</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> counterState = remember &#123; mutableStateOf(<span class="number">0</span>) &#125;</span><br><span class="line">    Counter(</span><br><span class="line">        count = counterState.value,</span><br><span class="line">        updateCount = &#123; newCount -&gt;</span><br><span class="line">            counterState.value = newCount</span><br><span class="line">        &#125;</span><br><span class="line">    )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Composable</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">Counter</span><span class="params">(count: <span class="type">Int</span>, updateCount: (<span class="type">Int</span>) -&gt; <span class="type">Unit</span>)</span></span> &#123;</span><br><span class="line">    Button(onClick = &#123; updateCount(count+<span class="number">1</span>) &#125;) &#123;</span><br><span class="line">        Text(<span class="string">&quot;I&#x27;ve been clicked <span class="variable">$count</span> times&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>caller持有callee需要的状态, 并且提供给callee其需要的更新状态的接口</p>
+<p>state hoisting这一设计模式让我们可以写出纯stateless的composable, 并且把他们的状态hoist到上层</p>
+<p><code>remember()&#123;&#125;</code>会在compose内部保存状态, remember会在()内填入的参数不变的情况下不在recompose的时候重新执行{}这一block</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/08/792-Number-of-Matching-Subsequences/" rel="prev" title="792. Number of Matching Subsequences">
+      <i class="fa fa-chevron-left"></i> 792. Number of Matching Subsequences
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/26/Dynamic-Proxy/" rel="next" title="Dynamic Proxy">
+      Dynamic Proxy <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#compose-1"><span class="nav-number">1.</span> <span class="nav-text">Compose! (1)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#intro"><span class="nav-number">1.0.1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#example"><span class="nav-number">1.0.2.</span> <span class="nav-text">Example</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#scope-fun"><span class="nav-number">1.0.3.</span> <span class="nav-text">Scope fun</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#context-object"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">Context object</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#return-value"><span class="nav-number">1.0.3.2.</span> <span class="nav-text">Return value</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#facts"><span class="nav-number">1.0.3.3.</span> <span class="nav-text">Facts</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#state-hoisting"><span class="nav-number">1.0.4.</span> <span class="nav-text">State Hoisting</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Paradox</p>
+  <div class="site-description" itemprop="description">What I have learned</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">100</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Paradox</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
