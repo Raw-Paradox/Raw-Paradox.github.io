@@ -166,6 +166,149 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/12/26/Okhttp%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/12/26/Okhttp%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-1/" class="post-title-link" itemprop="url">Okhttp源码阅读笔记(1)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-12-26 17:40:26 / Modified: 17:41:06" itemprop="dateCreated datePublished" datetime="2020-12-26T17:40:26+08:00">2020-12-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/network/" itemprop="url" rel="index"><span itemprop="name">network</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="okhttp源码阅读笔记1">Okhttp源码阅读笔记(1)</h2>
+<h3 id="motivationtarget">Motivation/Target</h3>
+<p>addInterceptor与addNetworkInterceptor区别</p>
+<h3 id="enqueue异步发送网络请求">enqueue异步发送网络请求</h3>
+<p>首先说明okhttp中发送网络请求的流程:</p>
+<ul>
+<li><p><code>OkHttpClient::newCall(Request)</code>来创建一个Call的对象, 其中Request对象也是通过建造者模式来构造</p></li>
+<li><p>我们在使用的时候通常使用<code>Call</code> 的 <code>execute</code>(同步) 或者 <code>enqueue</code>(异步)来通过传入callback的方式来让其执行callback中的逻辑, 下面我们以<code>enqueue</code> 为例来分析callback的调用时机</p></li>
+<li><p>首先需要指明一点: 在OkHttpClient中Call的具体实现类为RealCall</p></li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="keyword">public</span> void enqueue(Callback responseCallback) &#123;</span><br><span class="line">    synchronized (<span class="keyword">this</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (executed) <span class="keyword">throw</span> new IllegalStateException(<span class="string">&quot;Already Executed&quot;</span>);</span><br><span class="line">      executed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    transmitter.callStart();</span><br><span class="line">    client.dispatcher().enqueue(new AsyncCall(responseCallback));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在enqueue中首先会检查是否被执行过(只能执行一次), 其次再调用<code>transmitter.callStart()</code>, 最后调用client中的dispatcher来把callback包装进AsyncCall后压入dispatcher中的队列</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void enqueue(AsyncCall call) &#123;</span><br><span class="line">    synchronized (<span class="keyword">this</span>) &#123;</span><br><span class="line">      readyAsyncCalls.add(call);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Mutate the AsyncCall so that it shares the AtomicInteger of an existing running call to</span></span><br><span class="line">      <span class="comment">// the same host.</span></span><br><span class="line">      <span class="keyword">if</span> (!call.<span class="keyword">get</span>().forWebSocket) &#123;</span><br><span class="line">        AsyncCall existingCall = findExistingCallWithHost(call.host());</span><br><span class="line">        <span class="keyword">if</span> (existingCall != <span class="literal">null</span>) call.reuseCallsPerHostFrom(existingCall);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    promoteAndExecute();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Dispatcher会维护两个队列readyAsyncCalls和runningAsyncCalls, 在client.newCall情况下forWebSocket为false故会首先检查两个队列中是否有和当前call host相同的, 有的话就使用同一个AtomicInterger变量来计数当前对目标host的请求数量</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> boolean promoteAndExecute() &#123;</span><br><span class="line">    assert (!Thread.holdsLock(<span class="keyword">this</span>));</span><br><span class="line"></span><br><span class="line">    List&lt;AsyncCall&gt; executableCalls = new ArrayList&lt;&gt;();</span><br><span class="line">    boolean isRunning;</span><br><span class="line">    synchronized (<span class="keyword">this</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (Iterator&lt;AsyncCall&gt; i = readyAsyncCalls.iterator(); i.hasNext(); ) &#123;</span><br><span class="line">        AsyncCall asyncCall = i.next();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (runningAsyncCalls.size() &gt;= maxRequests) <span class="keyword">break</span>; <span class="comment">// Max capacity.</span></span><br><span class="line">        <span class="keyword">if</span> (asyncCall.callsPerHost().<span class="keyword">get</span>() &gt;= maxRequestsPerHost) <span class="keyword">continue</span>; <span class="comment">// Host max capacity.</span></span><br><span class="line"></span><br><span class="line">        i.remove();</span><br><span class="line">        asyncCall.callsPerHost().incrementAndGet();</span><br><span class="line">        executableCalls.add(asyncCall);</span><br><span class="line">        runningAsyncCalls.add(asyncCall);</span><br><span class="line">      &#125;</span><br><span class="line">      isRunning = runningCallsCount() &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (int i = <span class="number">0</span>, size = executableCalls.size(); i &lt; size; i++) &#123;</span><br><span class="line">      AsyncCall asyncCall = executableCalls.<span class="keyword">get</span>(i);</span><br><span class="line">      asyncCall.executeOn(executorService());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> isRunning;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>不太清楚为什么在进入方法的时候必须assert当前线程(应该是主线程)没有拿着dispatcher的锁</li>
+<li>这个方法就是挑出了能运行的asyncCall然后去让他们在线程池上去执行</li>
+<li>而这个asyncCall的真正逻辑是在其execute方法里去执行的, 交由线程池执行的核心代码也是在这个函数中</li>
+<li>如果asyncCall被线程池拒接了, 那么会在主线程上调用callBack.onFailure</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="keyword">protected</span> void execute() &#123;</span><br><span class="line">      boolean signalledCallback = <span class="literal">false</span>;</span><br><span class="line">      transmitter.timeoutEnter();</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        Response response = getResponseWithInterceptorChain();</span><br><span class="line">        signalledCallback = <span class="literal">true</span>;</span><br><span class="line">        responseCallback.onResponse(RealCall.<span class="keyword">this</span>, response);</span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (signalledCallback) &#123;</span><br><span class="line">          <span class="comment">// Do not signal the callback twice!</span></span><br><span class="line">          Platform.<span class="keyword">get</span>().log(INFO, <span class="string">&quot;Callback failure for &quot;</span> + toLoggableString(), e);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          responseCallback.onFailure(RealCall.<span class="keyword">this</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        cancel();</span><br><span class="line">        <span class="keyword">if</span> (!signalledCallback) &#123;</span><br><span class="line">          IOException canceledException = new IOException(<span class="string">&quot;canceled due to &quot;</span> + t);</span><br><span class="line">          canceledException.addSuppressed(t);</span><br><span class="line">          responseCallback.onFailure(RealCall.<span class="keyword">this</span>, canceledException);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> t;</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        client.dispatcher().finished(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个函数里可以看到, 真正的response是由<code>getResponseWithInterceptorChain()</code>返回的, 然后把这个response交由callback.onResponse去处理</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">Response getResponseWithInterceptorChain() throws IOException &#123;</span><br><span class="line">    <span class="comment">// Build a full stack of interceptors.</span></span><br><span class="line">    List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;();</span><br><span class="line">    interceptors.addAll(client.interceptors());</span><br><span class="line">    interceptors.add(new RetryAndFollowUpInterceptor(client));</span><br><span class="line">    interceptors.add(new BridgeInterceptor(client.cookieJar()));</span><br><span class="line">    interceptors.add(new CacheInterceptor(client.internalCache()));</span><br><span class="line">    interceptors.add(new ConnectInterceptor(client));</span><br><span class="line">    <span class="keyword">if</span> (!forWebSocket) &#123;</span><br><span class="line">      interceptors.addAll(client.networkInterceptors());</span><br><span class="line">    &#125;</span><br><span class="line">    interceptors.add(new CallServerInterceptor(forWebSocket));</span><br><span class="line"></span><br><span class="line">    Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, <span class="literal">null</span>, <span class="number">0</span>,</span><br><span class="line">        originalRequest, <span class="keyword">this</span>, client.connectTimeoutMillis(),</span><br><span class="line">        client.readTimeoutMillis(), client.writeTimeoutMillis());</span><br><span class="line"></span><br><span class="line">    boolean calledNoMoreExchanges = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Response response = chain.proceed(originalRequest);</span><br><span class="line">      <span class="keyword">if</span> (transmitter.isCanceled()) &#123;</span><br><span class="line">        closeQuietly(response);</span><br><span class="line">        <span class="keyword">throw</span> new IOException(<span class="string">&quot;Canceled&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> response;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">      calledNoMoreExchanges = <span class="literal">true</span>;</span><br><span class="line">      <span class="keyword">throw</span> transmitter.noMoreExchanges(e);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!calledNoMoreExchanges) &#123;</span><br><span class="line">        transmitter.noMoreExchanges(<span class="literal">null</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到在非forWebSocket的情况下, interceptor的顺序为:</p>
+<ul>
+<li>通过addInterceptor添加的interceptors</li>
+<li>RetryAndFollowUpInterceptor</li>
+<li>BridgeInterceptor(如果cookieJar不设置的话为NO_COOKIES为空)</li>
+<li>CacheInterceptor</li>
+<li>ConnectInterceptor</li>
+<li>通过addNetworkInterceptor添加的interceptors</li>
+<li>CallServerInterceptor: 最后一个添加的interceptor, 也是实际向服务器发送网络请求的</li>
+</ul>
+<p>然后再根据上面的intercetpors list来构建RealInterceptorChain对象来开始递归的proceed, 最后返回Response对象</p>
+<h3 id="自带的interceptors">自带的Interceptors</h3>
+<h5 id="retryandfollowupinterceptor">RetryAndFollowUpInterceptor</h5>
+<ul>
+<li>注释: This interceptor recovers from failures and follows redirects as necessary. It may throw an IOException if the call was canceled.</li>
+<li>和他的名字一样, 就是去做retry和followup的, 配置为最多跟redirect20次, 超过的话会抛Exception</li>
+</ul>
+<h5 id="bridgeinterceptor">BridgeInterceptor</h5>
+<ul>
+<li>注释: Bridges from application code to network code. First it builds a network request from a user request. Then it proceeds to call the network. Finally it builds a user response from the network response.</li>
+<li>在发送请求之前根据RequestBody来填充标准http报文需要的Content-Type, Connection, Content-Length等参数, 设置cookies</li>
+<li>在收到网络发回的response之后会strip掉一些没什么用的header, 把cookies填充到cookieJar里面, 解压body content(只限于gzip格式)</li>
+</ul>
+<h5 id="cacheinterceptor">CacheInterceptor</h5>
+<ul>
+<li>注释: Serves requests from the cache and writes responses to the cache.</li>
+<li></li>
+</ul>
+<h5 id="connectinterceptor">ConnectInterceptor</h5>
+<ul>
+<li>注释: Opens a connection to the target server and proceeds to the next interceptor.</li>
+<li></li>
+</ul>
+<h5 id="callserverinterceptor">CallServerInterceptor</h5>
+<ul>
+<li>注释: This is the last interceptor in the chain. It makes a network call to the server.</li>
+</ul>
+<h3 id="result">Result</h3>
+<p>我们根据通过两个不同的方法添加的interceptors在自带interceptors中的顺序就可以看出:</p>
+<ul>
+<li>通过后者(addNetworkInterceptor)添加的拦截器只在真正向网络发送请求的时候才会起作用(如果是从cache里取就不会被调用了), 而且接触到的是raw Request和raw Response, 包含了http报文的全部信息</li>
+<li>通过前者(addInterceptor)添加的拦截器会接触到每一次app发送的request和收到的response, 而中间通过了多少redirect之类的并不是其关心的内容</li>
+<li>应该在NetworkInterceptor里做依赖于网络状态而与返回内容无关的操作, 在Interceptor去做和返回内容有关的操作</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/11/26/Dynamic-Proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -976,110 +1119,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/11/03/295-Find-Median-from-Data-Stream/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Paradox">
-      <meta itemprop="description" content="What I have learned">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Paradox's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/03/295-Find-Median-from-Data-Stream/" class="post-title-link" itemprop="url">295.Find Median from Data Stream</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-11-03 13:47:04 / Modified: 14:42:44" itemprop="dateCreated datePublished" datetime="2020-11-03T13:47:04+08:00">2020-11-03</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="find-median-from-data-stream">295.Find Median from Data Stream</h3>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://leetcode.com/problems/find-median-from-data-stream/description/">source link</a></p>
-</blockquote>
-<h5 id="description">Description</h5>
-<p>Median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value. So the median is the mean of the two middle value.</p>
-<p>For example,</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[2,3,4], the median is 3</span><br><span class="line">[2,3], the median is (2 + 3) &#x2F; 2 &#x3D; 2.5</span><br></pre></td></tr></table></figure>
-<p>Design a data structure that supports the following two operations:</p>
-<ul>
-<li>void addNum(int num) - Add a integer number from the data stream to the data structure.</li>
-<li>double findMedian() - Return the median of all elements so far.</li>
-</ul>
-<p><strong>Follow up:</strong></p>
-<ol type="1">
-<li>If all integer numbers from the stream are between 0 and 100, how would you optimize it?</li>
-<li>If 99% of all integer numbers from the stream are between 0 and 100, how would you optimize it?</li>
-</ol>
-<h5 id="analysis">Analysis</h5>
-<p><em>My approach</em></p>
-<p>写了一个插入排序的, addNum是O(logn)+O(n)=O(n), findMedian是O(1), 但是这时空占用就离谱, 赶紧看大佬的解法</p>
-<p><img src="/Users/chenyibo/Library/Application Support/typora-user-images/image-20201103135402103.png" style="zoom:0.5;"/></p>
-<p>至于follow up我的想法是, 如果全部都是0-100之间那直接用一个100长的数组就好, add和find操作都是O(1)的; 如果是99%在0-100之间, 那么可以建一个100长数组然后比0小比100大部分可以直接用两个无序list保存</p>
-<p><em>better apporach</em></p>
-<p>看了用时较少的解法, 是用了两个堆来对半保存数组, 前半部分用大堆保存, 后半部分用小堆保存, 始终保持两个堆是balance的(类似于AVL中的概念, 此时是元素数目相差最多为1), 这样可以保持add复杂度为logn而find仍为O(1)</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">priority_queue</span>&lt;<span class="keyword">int</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;, greater&lt;<span class="keyword">int</span>&gt;&gt; min_heap;</span><br><span class="line">    <span class="built_in">priority_queue</span>&lt;<span class="keyword">int</span>&gt; max_heap;</span><br><span class="line">    <span class="keyword">int</span> size = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** initialize your data structure here. */</span></span><br><span class="line">    MedianFinder() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!max_heap.empty() &amp;&amp; max_heap.top() &lt; num) &#123;</span><br><span class="line">            min_heap.push(num);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            max_heap.push(num);</span><br><span class="line">        &#125;</span><br><span class="line">        size++;</span><br><span class="line">        <span class="keyword">if</span> (max_heap.size() &gt; min_heap.size()) &#123;</span><br><span class="line">            <span class="keyword">while</span> (max_heap.size() - min_heap.size() != (size &amp; <span class="number">1</span>)) &#123;</span><br><span class="line">                min_heap.push(max_heap.top());</span><br><span class="line">                max_heap.pop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (max_heap.size() - min_heap.size() != (size &amp; <span class="number">1</span>)) &#123;</span><br><span class="line">                max_heap.push(min_heap.top());</span><br><span class="line">                min_heap.pop();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (size &amp; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> max_heap.top();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> ((<span class="keyword">double</span>)max_heap.top() + min_heap.top()) / <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>上面是我了解思路之后的具体实现</p>
-<p><em>binary search</em></p>
-<p>今天又被二分搜索搞懵了, 一个在random-access iterator上跑的二分搜索, 如果要保存一个该元素插入位置的话, 终止条件要设置为low&lt;high, 要的就是low的范围可以到vector.size()上, 这样的话mid的求的条件应该为(low + high - 1) / 2, 使得mid取值始终不能等于high(以防止可能的越界问题), 并且设置low的时候要设置为mid+1, 这样一定不会陷入死循环.</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> low = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> high = v.size();</span><br><span class="line"><span class="keyword">while</span> (low &lt; high) &#123;</span><br><span class="line">		<span class="keyword">int</span> mid = (low + high - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span> (v[mid] &gt; num) &#123;</span><br><span class="line">    		high = mid;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        low = mid + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这样结束之后low的值就是查找元素在数组中应占有的位置</p>
-<h5 id="solution">Solution</h5>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MedianFinder</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v;</span><br><span class="line">    <span class="comment">/** initialize your data structure here. */</span></span><br><span class="line">    MedianFinder() &#123;</span><br><span class="line">        v = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addNum</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> low = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> high = v.size();</span><br><span class="line">        <span class="keyword">while</span> (low &lt; high) &#123;</span><br><span class="line">            <span class="keyword">int</span> mid = (low + high - <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span> (v[mid] &gt; num) &#123;</span><br><span class="line">                high = mid;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                low = mid + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        v.push_back(num);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = v.size() - <span class="number">1</span>; i &gt; low; i--) &#123;</span><br><span class="line">            v[i] = v[i - <span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        v[low] = num;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">findMedian</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = v.size();</span><br><span class="line">        <span class="keyword">if</span> (n &amp; <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> v[n / <span class="number">2</span>];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> ((<span class="keyword">double</span>)v[n / <span class="number">2</span> - <span class="number">1</span>] + v[n / <span class="number">2</span>]) / <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1145,14 +1188,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">100</span>
+          <span class="site-state-item-count">101</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">

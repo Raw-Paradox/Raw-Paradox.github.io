@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"123.57.173.58","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Okhttp源码阅读笔记(1) Motivation&#x2F;Target addInterceptor与addNetworkInterceptor区别 enqueue异步发送网络请求 首先说明okhttp中发送网络请求的流程:  OkHttpClient::newCall(Request)来创建一个Call的对象, 其中Request对象也是通过建造者模式来构造 我们在使用的时候通常使用Call 的 e">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Okhttp源码阅读笔记(1)">
+<meta property="og:url" content="http://123.57.173.58/2020/12/26/Okhttp%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-1/index.html">
+<meta property="og:site_name" content="Paradox&#39;s Blog">
+<meta property="og:description" content="Okhttp源码阅读笔记(1) Motivation&#x2F;Target addInterceptor与addNetworkInterceptor区别 enqueue异步发送网络请求 首先说明okhttp中发送网络请求的流程:  OkHttpClient::newCall(Request)来创建一个Call的对象, 其中Request对象也是通过建造者模式来构造 我们在使用的时候通常使用Call 的 e">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-26T09:40:26.000Z">
+<meta property="article:modified_time" content="2020-12-26T09:41:06.088Z">
+<meta property="article:author" content="Paradox">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://123.57.173.58/2020/12/26/Okhttp%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Okhttp源码阅读笔记(1) | Paradox's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Paradox's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://123.57.173.58/2020/12/26/Okhttp%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Paradox">
+      <meta itemprop="description" content="What I have learned">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Paradox's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Okhttp源码阅读笔记(1)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-12-26 17:40:26 / Modified: 17:41:06" itemprop="dateCreated datePublished" datetime="2020-12-26T17:40:26+08:00">2020-12-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/" itemprop="url" rel="index"><span itemprop="name">android</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/android/network/" itemprop="url" rel="index"><span itemprop="name">network</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="okhttp源码阅读笔记1">Okhttp源码阅读笔记(1)</h2>
+<h3 id="motivationtarget">Motivation/Target</h3>
+<p>addInterceptor与addNetworkInterceptor区别</p>
+<h3 id="enqueue异步发送网络请求">enqueue异步发送网络请求</h3>
+<p>首先说明okhttp中发送网络请求的流程:</p>
+<ul>
+<li><p><code>OkHttpClient::newCall(Request)</code>来创建一个Call的对象, 其中Request对象也是通过建造者模式来构造</p></li>
+<li><p>我们在使用的时候通常使用<code>Call</code> 的 <code>execute</code>(同步) 或者 <code>enqueue</code>(异步)来通过传入callback的方式来让其执行callback中的逻辑, 下面我们以<code>enqueue</code> 为例来分析callback的调用时机</p></li>
+<li><p>首先需要指明一点: 在OkHttpClient中Call的具体实现类为RealCall</p></li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="keyword">public</span> void enqueue(Callback responseCallback) &#123;</span><br><span class="line">    synchronized (<span class="keyword">this</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (executed) <span class="keyword">throw</span> new IllegalStateException(<span class="string">&quot;Already Executed&quot;</span>);</span><br><span class="line">      executed = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    transmitter.callStart();</span><br><span class="line">    client.dispatcher().enqueue(new AsyncCall(responseCallback));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在enqueue中首先会检查是否被执行过(只能执行一次), 其次再调用<code>transmitter.callStart()</code>, 最后调用client中的dispatcher来把callback包装进AsyncCall后压入dispatcher中的队列</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void enqueue(AsyncCall call) &#123;</span><br><span class="line">    synchronized (<span class="keyword">this</span>) &#123;</span><br><span class="line">      readyAsyncCalls.add(call);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Mutate the AsyncCall so that it shares the AtomicInteger of an existing running call to</span></span><br><span class="line">      <span class="comment">// the same host.</span></span><br><span class="line">      <span class="keyword">if</span> (!call.<span class="keyword">get</span>().forWebSocket) &#123;</span><br><span class="line">        AsyncCall existingCall = findExistingCallWithHost(call.host());</span><br><span class="line">        <span class="keyword">if</span> (existingCall != <span class="literal">null</span>) call.reuseCallsPerHostFrom(existingCall);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    promoteAndExecute();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Dispatcher会维护两个队列readyAsyncCalls和runningAsyncCalls, 在client.newCall情况下forWebSocket为false故会首先检查两个队列中是否有和当前call host相同的, 有的话就使用同一个AtomicInterger变量来计数当前对目标host的请求数量</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> boolean promoteAndExecute() &#123;</span><br><span class="line">    assert (!Thread.holdsLock(<span class="keyword">this</span>));</span><br><span class="line"></span><br><span class="line">    List&lt;AsyncCall&gt; executableCalls = new ArrayList&lt;&gt;();</span><br><span class="line">    boolean isRunning;</span><br><span class="line">    synchronized (<span class="keyword">this</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (Iterator&lt;AsyncCall&gt; i = readyAsyncCalls.iterator(); i.hasNext(); ) &#123;</span><br><span class="line">        AsyncCall asyncCall = i.next();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (runningAsyncCalls.size() &gt;= maxRequests) <span class="keyword">break</span>; <span class="comment">// Max capacity.</span></span><br><span class="line">        <span class="keyword">if</span> (asyncCall.callsPerHost().<span class="keyword">get</span>() &gt;= maxRequestsPerHost) <span class="keyword">continue</span>; <span class="comment">// Host max capacity.</span></span><br><span class="line"></span><br><span class="line">        i.remove();</span><br><span class="line">        asyncCall.callsPerHost().incrementAndGet();</span><br><span class="line">        executableCalls.add(asyncCall);</span><br><span class="line">        runningAsyncCalls.add(asyncCall);</span><br><span class="line">      &#125;</span><br><span class="line">      isRunning = runningCallsCount() &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (int i = <span class="number">0</span>, size = executableCalls.size(); i &lt; size; i++) &#123;</span><br><span class="line">      AsyncCall asyncCall = executableCalls.<span class="keyword">get</span>(i);</span><br><span class="line">      asyncCall.executeOn(executorService());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> isRunning;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>不太清楚为什么在进入方法的时候必须assert当前线程(应该是主线程)没有拿着dispatcher的锁</li>
+<li>这个方法就是挑出了能运行的asyncCall然后去让他们在线程池上去执行</li>
+<li>而这个asyncCall的真正逻辑是在其execute方法里去执行的, 交由线程池执行的核心代码也是在这个函数中</li>
+<li>如果asyncCall被线程池拒接了, 那么会在主线程上调用callBack.onFailure</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="keyword">protected</span> void execute() &#123;</span><br><span class="line">      boolean signalledCallback = <span class="literal">false</span>;</span><br><span class="line">      transmitter.timeoutEnter();</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        Response response = getResponseWithInterceptorChain();</span><br><span class="line">        signalledCallback = <span class="literal">true</span>;</span><br><span class="line">        responseCallback.onResponse(RealCall.<span class="keyword">this</span>, response);</span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (signalledCallback) &#123;</span><br><span class="line">          <span class="comment">// Do not signal the callback twice!</span></span><br><span class="line">          Platform.<span class="keyword">get</span>().log(INFO, <span class="string">&quot;Callback failure for &quot;</span> + toLoggableString(), e);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          responseCallback.onFailure(RealCall.<span class="keyword">this</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        cancel();</span><br><span class="line">        <span class="keyword">if</span> (!signalledCallback) &#123;</span><br><span class="line">          IOException canceledException = new IOException(<span class="string">&quot;canceled due to &quot;</span> + t);</span><br><span class="line">          canceledException.addSuppressed(t);</span><br><span class="line">          responseCallback.onFailure(RealCall.<span class="keyword">this</span>, canceledException);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> t;</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        client.dispatcher().finished(<span class="keyword">this</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个函数里可以看到, 真正的response是由<code>getResponseWithInterceptorChain()</code>返回的, 然后把这个response交由callback.onResponse去处理</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">Response getResponseWithInterceptorChain() throws IOException &#123;</span><br><span class="line">    <span class="comment">// Build a full stack of interceptors.</span></span><br><span class="line">    List&lt;Interceptor&gt; interceptors = new ArrayList&lt;&gt;();</span><br><span class="line">    interceptors.addAll(client.interceptors());</span><br><span class="line">    interceptors.add(new RetryAndFollowUpInterceptor(client));</span><br><span class="line">    interceptors.add(new BridgeInterceptor(client.cookieJar()));</span><br><span class="line">    interceptors.add(new CacheInterceptor(client.internalCache()));</span><br><span class="line">    interceptors.add(new ConnectInterceptor(client));</span><br><span class="line">    <span class="keyword">if</span> (!forWebSocket) &#123;</span><br><span class="line">      interceptors.addAll(client.networkInterceptors());</span><br><span class="line">    &#125;</span><br><span class="line">    interceptors.add(new CallServerInterceptor(forWebSocket));</span><br><span class="line"></span><br><span class="line">    Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, <span class="literal">null</span>, <span class="number">0</span>,</span><br><span class="line">        originalRequest, <span class="keyword">this</span>, client.connectTimeoutMillis(),</span><br><span class="line">        client.readTimeoutMillis(), client.writeTimeoutMillis());</span><br><span class="line"></span><br><span class="line">    boolean calledNoMoreExchanges = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Response response = chain.proceed(originalRequest);</span><br><span class="line">      <span class="keyword">if</span> (transmitter.isCanceled()) &#123;</span><br><span class="line">        closeQuietly(response);</span><br><span class="line">        <span class="keyword">throw</span> new IOException(<span class="string">&quot;Canceled&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> response;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">      calledNoMoreExchanges = <span class="literal">true</span>;</span><br><span class="line">      <span class="keyword">throw</span> transmitter.noMoreExchanges(e);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!calledNoMoreExchanges) &#123;</span><br><span class="line">        transmitter.noMoreExchanges(<span class="literal">null</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到在非forWebSocket的情况下, interceptor的顺序为:</p>
+<ul>
+<li>通过addInterceptor添加的interceptors</li>
+<li>RetryAndFollowUpInterceptor</li>
+<li>BridgeInterceptor(如果cookieJar不设置的话为NO_COOKIES为空)</li>
+<li>CacheInterceptor</li>
+<li>ConnectInterceptor</li>
+<li>通过addNetworkInterceptor添加的interceptors</li>
+<li>CallServerInterceptor: 最后一个添加的interceptor, 也是实际向服务器发送网络请求的</li>
+</ul>
+<p>然后再根据上面的intercetpors list来构建RealInterceptorChain对象来开始递归的proceed, 最后返回Response对象</p>
+<h3 id="自带的interceptors">自带的Interceptors</h3>
+<h5 id="retryandfollowupinterceptor">RetryAndFollowUpInterceptor</h5>
+<ul>
+<li>注释: This interceptor recovers from failures and follows redirects as necessary. It may throw an IOException if the call was canceled.</li>
+<li>和他的名字一样, 就是去做retry和followup的, 配置为最多跟redirect20次, 超过的话会抛Exception</li>
+</ul>
+<h5 id="bridgeinterceptor">BridgeInterceptor</h5>
+<ul>
+<li>注释: Bridges from application code to network code. First it builds a network request from a user request. Then it proceeds to call the network. Finally it builds a user response from the network response.</li>
+<li>在发送请求之前根据RequestBody来填充标准http报文需要的Content-Type, Connection, Content-Length等参数, 设置cookies</li>
+<li>在收到网络发回的response之后会strip掉一些没什么用的header, 把cookies填充到cookieJar里面, 解压body content(只限于gzip格式)</li>
+</ul>
+<h5 id="cacheinterceptor">CacheInterceptor</h5>
+<ul>
+<li>注释: Serves requests from the cache and writes responses to the cache.</li>
+<li></li>
+</ul>
+<h5 id="connectinterceptor">ConnectInterceptor</h5>
+<ul>
+<li>注释: Opens a connection to the target server and proceeds to the next interceptor.</li>
+<li></li>
+</ul>
+<h5 id="callserverinterceptor">CallServerInterceptor</h5>
+<ul>
+<li>注释: This is the last interceptor in the chain. It makes a network call to the server.</li>
+</ul>
+<h3 id="result">Result</h3>
+<p>我们根据通过两个不同的方法添加的interceptors在自带interceptors中的顺序就可以看出:</p>
+<ul>
+<li>通过后者(addNetworkInterceptor)添加的拦截器只在真正向网络发送请求的时候才会起作用(如果是从cache里取就不会被调用了), 而且接触到的是raw Request和raw Response, 包含了http报文的全部信息</li>
+<li>通过前者(addInterceptor)添加的拦截器会接触到每一次app发送的request和收到的response, 而中间通过了多少redirect之类的并不是其关心的内容</li>
+<li>应该在NetworkInterceptor里做依赖于网络状态而与返回内容无关的操作, 在Interceptor去做和返回内容有关的操作</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/26/Dynamic-Proxy/" rel="prev" title="Dynamic Proxy">
+      <i class="fa fa-chevron-left"></i> Dynamic Proxy
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#okhttp%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B01"><span class="nav-number">1.</span> <span class="nav-text">Okhttp源码阅读笔记(1)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#motivationtarget"><span class="nav-number">1.1.</span> <span class="nav-text">Motivation&#x2F;Target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#enqueue%E5%BC%82%E6%AD%A5%E5%8F%91%E9%80%81%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82"><span class="nav-number">1.2.</span> <span class="nav-text">enqueue异步发送网络请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%B8%A6%E7%9A%84interceptors"><span class="nav-number">1.3.</span> <span class="nav-text">自带的Interceptors</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#retryandfollowupinterceptor"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">RetryAndFollowUpInterceptor</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#bridgeinterceptor"><span class="nav-number">1.3.0.2.</span> <span class="nav-text">BridgeInterceptor</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#cacheinterceptor"><span class="nav-number">1.3.0.3.</span> <span class="nav-text">CacheInterceptor</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#connectinterceptor"><span class="nav-number">1.3.0.4.</span> <span class="nav-text">ConnectInterceptor</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#callserverinterceptor"><span class="nav-number">1.3.0.5.</span> <span class="nav-text">CallServerInterceptor</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#result"><span class="nav-number">1.4.</span> <span class="nav-text">Result</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Paradox</p>
+  <div class="site-description" itemprop="description">What I have learned</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Paradox</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
